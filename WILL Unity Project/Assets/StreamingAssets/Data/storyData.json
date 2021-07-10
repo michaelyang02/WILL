@@ -1,0 +1,78 @@
+[
+  {
+    "index": 0,
+    "childrenIndices": [
+      1,
+      2
+    ],
+    "companionIndices": [
+      1
+    ],
+    "character": "MrsJacobs",
+    "title": "Time is right",
+    "initialText": [
+      "As I was still preoccupied by that exotic cigar smell, I was brought back to reality by a loud scream somewhere above.",
+      "God knows what happened there.\n",
+      "I finally reached the landing of my floor.",
+      "An apple sudden popped out of one of my grocery bags and rolled on the ground.",
+      "I bent over to reach it."
+    ],
+    "outcomes": [
+      {
+        "outcomeText": [
+          "My apartment was destroyed.\\ The fire spread to neighbouring apartments on my floor, causing major damages too.\n",
+          "With everything gone and massive bills to pay, I have no way out but to end it all.\n",
+          "God, only if I didn’t open the door..."
+        ],
+        "enabledStories": [],
+        "disabledStories": []
+      }
+    ],
+    "lastLineTypes": {
+      "-1": "Draggable",
+      "-2": "Draggable",
+      "-3": "Draggable",
+      "-4": "None",
+      "-5": "None"
+    },
+    "lineEffects": {}
+  },
+  {
+    "index": 1,
+    "childrenIndices": [
+      1,
+      2
+    ],
+    "companionIndices": [
+      0
+    ],
+    "character": "DetectiveJohnson",
+    "title": "Don't ask me why the text is so long!",
+    "initialText": [
+      "As I was still preoccupied by that exotic cigar smell, I was brought back to reality by a loud scream somewhere above.",
+      "God knows what happened there.\n",
+      "I finally reached the landing of my floor.",
+      "An apple sudden popped out of one of my grocery bags and rolled on the ground.",
+      "I bent over to reach it."
+    ],
+    "outcomes": [
+      {
+        "outcomeText": [
+          "My apartment was destroyed.\\ The fire spread to neighbouring apartments on my floor, causing major damages too.\n",
+          "With everything gone and massive bills to pay, I have no way out but to end it all.\n",
+          "God, only if I didn’t open the door..."
+        ],
+        "enabledStories": [],
+        "disabledStories": []
+      }
+    ],
+    "lastLineTypes": {
+      "-1": "Draggable",
+      "-2": "Draggable",
+      "-3": "Draggable",
+      "-4": "None",
+      "-5": "None"
+    },
+    "lineEffects": {}
+  }
+]

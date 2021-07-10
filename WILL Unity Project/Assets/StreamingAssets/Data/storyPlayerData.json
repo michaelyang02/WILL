@@ -1,0 +1,22 @@
+[
+  {
+    "index": 0,
+    "discovered": true,
+    "outcomeDiscovered": [
+      true,
+      false,
+      false
+    ],
+    "selectedOutcome": 0
+  },
+  {
+    "index": 1,
+    "discovered": true,
+    "outcomeDiscovered": [
+      true,
+      false,
+      false
+    ],
+    "selectedOutcome": 0
+  }
+]
