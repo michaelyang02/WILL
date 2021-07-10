@@ -13,9 +13,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
     public TMPro.TMP_Text storyText;
 
     public GameObject autoText;
-    public GameObject nextButton;
-
-    public static float writingTime = 0.001f; // 0.025f
+    public static float writingTime = 0.025f; // 0.025f
 
     private StoryData storyData;
     private bool isAUTO;
@@ -23,31 +21,14 @@ public class StoryAnimatedTextManager : MonoBehaviour
     void Start()
     {
         storyData = StaticDataManager.storyDatas[StaticDataManager.selectedStoryOutcomes[StaticDataManager.seletedStoryOutcomeIndex].Key];
-        List<string> outComeText = storyData.outcomes[StaticDataManager.selectedStoryOutcomes[StaticDataManager.seletedStoryOutcomeIndex].Value].outcomeText;
-
+        List<string> outcomeText = storyData.outcomes[StaticDataManager.selectedStoryOutcomes[StaticDataManager.seletedStoryOutcomeIndex].Value].outcomeText;
 
         titleText.text = storyData.title;
         storyText.text = "";
-        nextButton.SetActive(false);
+
         GetComponent<Image>().color = storyData.GetColor();
 
-        string buttonText;
-        UnityAction OnClickAction;
-
-        if (StaticDataManager.seletedStoryOutcomeIndex == StaticDataManager.selectedStoryOutcomes.Count - 1)
-        {
-            buttonText = "Begin!";
-            OnClickAction = GoToRearrangmentScene;
-            StaticDataManager.seletedStoryOutcomeIndex = 0;
-        }
-        else
-        {
-            buttonText = "Next Letter";
-            OnClickAction = GoToNextAnimationScene;
-            StaticDataManager.seletedStoryOutcomeIndex++;
-        }
-        
-        StartCoroutine(AnimateWriting(buttonText, OnClickAction, storyData.initialText, outComeText));
+        StartCoroutine(AnimateWriting(storyData.initialText, outcomeText));
     }
 
     void Update()
@@ -73,17 +54,17 @@ public class StoryAnimatedTextManager : MonoBehaviour
         }
     }
 
-    IEnumerator AnimateWriting(string endText, UnityAction OnClickAction, params List<string>[] writingList)
+    IEnumerator AnimateWriting(params List<string>[] writingList)
     {
-        nextButton.GetComponentInChildren<TMPro.TMP_Text>().text = endText;
-        nextButton.GetComponent<Button>().onClick.AddListener(OnClickAction);
+        //string signature = ("\n\n<align=\"right\">" + storyData.GetCharacter());
 
         foreach (List<string> writing in writingList)
         {
             yield return StartCoroutine(NarrateLines(writing));
         }
+        
         yield return StartCoroutine(WaitProceeding(20f, false));
-        nextButton.SetActive(true);
+        SceneManager.LoadSceneAsync("StoryTextScene");
         yield break;
     }
 
@@ -191,19 +172,4 @@ public class StoryAnimatedTextManager : MonoBehaviour
         yield break;
     }
 
-
-    public void GoToMainGameScene()
-    {
-        SceneManager.LoadSceneAsync("MainGameScene");
-    }
-
-    public void GoToNextAnimationScene()
-    {
-        SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
-    }
-
-    public void GoToRearrangmentScene()
-    {
-        SceneManager.LoadSceneAsync("StoryRearrangementScene");
-    }
 }

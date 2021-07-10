@@ -7,7 +7,18 @@ using System;
 public class StoryData
 {
 
-    public static List<StoryData> stories = new List<StoryData>();
+    public string GetCharacter()
+    {
+        switch (character)
+        {
+            case Character.MrsJacobs:
+                return "Mrs Jacobs";
+            case Character.DetectiveJohnson:
+                return "Detective Johnson";
+            default:
+                return "Invalid character";
+        }
+    }
 
     [System.Serializable]
     public enum HighlightColor

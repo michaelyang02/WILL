@@ -127,6 +127,22 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 3636160152913876694, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636160152913876694, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3636160152913876694, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7035862360215102779, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
+      propertyPath: m_Transition
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7035862360215102779, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -157,7 +173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8359484398811356264, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
       propertyPath: m_Name
-      value: UI Button
+      value: Story UI Button
       objectReference: {fileID: 0}
     - target: {fileID: 8359484398811356264, guid: f8afaad7aea0bf6489d5cbc191e1870c, type: 3}
       propertyPath: m_IsActive

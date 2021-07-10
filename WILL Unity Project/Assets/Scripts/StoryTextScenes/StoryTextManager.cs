@@ -19,27 +19,5 @@ public class StoryTextManager : MonoBehaviour
     {
         storyText = storyGameObject.GetComponent<TMPro.TMP_Text>();
         storyRectTransform = storyGameObject.GetComponent<RectTransform>();
-
-        storyText.text = "";
-        for (int i = 0; i < lines.Count; i++)
-        {
-            storyText.text += (lines[i] + '\n');
-        }
-        StartCoroutine(RunOnceSetTextTransform());
-    }
-
-    IEnumerator RunOnceSetTextTransform()
-    {
-        // this is run after first frame to decrement the bottom
-        // until all texts fit inside the rect.
-
-        yield return null;
-
-        while(storyText.isTextOverflowing)
-        {
-            storyRectTransform.offsetMin -= new Vector2(0f, 10f);
-            yield return new WaitForEndOfFrame();
-        }
-        yield break;
     }
 }
