@@ -7,6 +7,13 @@ public class SceneLoader : MonoBehaviour
 {
     public static void LoadStoryAnimatedTextScene()
     {
-        SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[0].Key].isRead == true)
+        {
+            SceneManager.LoadSceneAsync("StoryTextScene");
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+        }
     }
 }

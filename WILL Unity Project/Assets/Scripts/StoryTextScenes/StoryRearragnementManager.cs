@@ -30,14 +30,14 @@ public class StoryRearragnementManager : MonoBehaviour
 
     void LoadStories()
     {
-        List<KeyValuePair<int, int>> storyList = new List<KeyValuePair<int, int>>(StaticDataManager.selectedStoryOutcomes);
+        List<KeyValuePair<int, int>> storyList = new List<KeyValuePair<int, int>>(StaticDataManager.SelectedStoryOutcomes);
         storyList.Sort((p, q) => p.Key.CompareTo(q.Key));
 
         int subPanelIndex = 0;
 
         foreach (KeyValuePair<int, int> keyValuePair in storyList)
         {
-            StoryData storyData = StaticDataManager.storyDatas[keyValuePair.Key];
+            StoryData storyData = StaticDataManager.StoryDatas[keyValuePair.Key];
             
             // instantiate subpanel
             GameObject tempSubPanelGameObject = Instantiate(subPanelPrefab);

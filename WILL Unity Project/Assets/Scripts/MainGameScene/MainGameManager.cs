@@ -23,16 +23,15 @@ public class MainGameManager : MonoBehaviour
     {
         SquareController.spriteSize = gridSize * Vector2.one;
 
-        InitialiseSquare(StaticDataManager.storyDatas[0], StaticDataManager.storyPlayerDatas[0], Vector2Int.zero);
-        InitialiseSquare(StaticDataManager.storyDatas[1], StaticDataManager.storyPlayerDatas[1], Vector2Int.one * 2);
+        InitialiseSquare(0, Vector2Int.zero);
+        InitialiseSquare(1, Vector2Int.one * 2);
     
     }
 
-    void InitialiseSquare(StoryData story, StoryPlayerData storyPlayer, Vector2Int position)
+    void InitialiseSquare(int storyIndex, Vector2Int position)
     {
         GameObject gameObject = Instantiate(squarePrefab, (Vector2) position * gridSize, Quaternion.identity);
-        gameObject.GetComponent<SquareController>().storyData = story;
-        gameObject.GetComponent<SquareController>().storyPlayerData = storyPlayer;
+        gameObject.GetComponent<SquareController>().storyIndex = storyIndex;
     }
 
     public void SquareClicked(GameObject clickedSquare)

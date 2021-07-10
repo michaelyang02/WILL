@@ -49,6 +49,7 @@
     "character": "DetectiveJohnson",
     "title": "Don't ask me why the text is so long!",
     "initialText": [
+      "Detective Johnson guy",
       "As I was still preoccupied by that exotic cigar smell, I was brought back to reality by a loud scream somewhere above.",
       "God knows what happened there.\n",
       "I finally reached the landing of my floor.",
@@ -71,7 +72,8 @@
       "-2": "Draggable",
       "-3": "Draggable",
       "-4": "None",
-      "-5": "None"
+      "-5": "None",
+      "-6": "None"
     },
     "lineEffects": {}
   }

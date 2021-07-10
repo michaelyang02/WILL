@@ -4,30 +4,36 @@ using UnityEngine;
 public class StaticDataManager : MonoBehaviour
 {
 
+    static bool isLoaded = false;
+
     void Awake()
     {
-        // load
-        storyDatas.storyDatas = SerializationManager.LoadJSON<List<StoryData>>("storyData");
-        storyPlayerDatas.storyPlayerDatas = SerializationManager.LoadJSON<List<StoryPlayerData>>("storyPlayerData");
-        
-        
-        // save
-        //SerializationManager.SaveJSON("storyPlayerData", storyPlayerDatas.storyPlayerDatas);
-        SerializationManager.Save("storyPlayerData", storyPlayerDatas.storyPlayerDatas);
+        if (!isLoaded)
+        {
+            // load
+            StoryDatas.storyDatas = SerializationManager.LoadJSON<List<StoryData>>("storyData");
+            StoryPlayerDatas.storyPlayerDatas = SerializationManager.LoadJSON<List<StoryPlayerData>>("storyPlayerData");
 
 
-        // backup
-        //SerializationManager.Backup("storyData", storyDatas.storyDatas);
+            // save
+            //SerializationManager.SaveJSON("storyPlayerData", storyPlayerDatas.storyPlayerDatas);
+            SerializationManager.Save("storyPlayerData", StoryPlayerDatas.storyPlayerDatas);
+
+
+            // backup
+            //SerializationManager.Backup("storyData", storyDatas.storyDatas);
+            isLoaded = true;
+        }
     }
 
 
 
     // for main game
-    public static StoryDataList storyDatas = new StoryDataList();
-    public static StoryPlayerDataList storyPlayerDatas = new StoryPlayerDataList();
+    public static StoryDataList StoryDatas = new StoryDataList();
+    public static StoryPlayerDataList StoryPlayerDatas = new StoryPlayerDataList();
 
 
     // for animated and rearrangement
-    public static List<KeyValuePair<int, int>> selectedStoryOutcomes = new List<KeyValuePair<int, int>>();
-    public static int seletedStoryOutcomeIndex = 0;
+    public static List<KeyValuePair<int, int>> SelectedStoryOutcomes = new List<KeyValuePair<int, int>>();
+    public static int SeletedStoryOutcomeIndex = 0;
 }

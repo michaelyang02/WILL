@@ -33,8 +33,9 @@ public class SquareController : MonoBehaviour
     private static MainGameManager mainGameManager;
     private static CameraManager cameraManager;
 
-    public StoryData storyData { get; set; }
-    public StoryPlayerData storyPlayerData { get; set; }
+    public int storyIndex { get; set; }
+    private StoryData storyData;
+    private StoryPlayerData storyPlayerData;
 
     static SquareController()
     {
@@ -49,6 +50,9 @@ public class SquareController : MonoBehaviour
 
     void Start()
     {
+        storyData = StaticDataManager.StoryDatas[storyIndex];
+        storyPlayerData = StaticDataManager.StoryPlayerDatas[storyIndex];
+
         canvas = GameObject.Find("Canvas");
 
         mainGameManager = MainGameManager.Instance;
@@ -93,12 +97,12 @@ public class SquareController : MonoBehaviour
     void Select()
     {
         // add selected storyData to StaticDataManager
-        StaticDataManager.selectedStoryOutcomes.Clear();
-        StaticDataManager.selectedStoryOutcomes.Add(new KeyValuePair<int, int>(storyData.index, storyPlayerData.selectedOutcome));
+        StaticDataManager.SelectedStoryOutcomes.Clear();
+        StaticDataManager.SelectedStoryOutcomes.Add(new KeyValuePair<int, int>(storyData.index, storyPlayerData.selectedOutcome));
 
         foreach (int companionIndex in storyData.companionIndices)
         {
-            StaticDataManager.selectedStoryOutcomes.Add(new KeyValuePair<int, int>(companionIndex, StaticDataManager.storyPlayerDatas[companionIndex].selectedOutcome));
+            StaticDataManager.SelectedStoryOutcomes.Add(new KeyValuePair<int, int>(companionIndex, StaticDataManager.StoryPlayerDatas[companionIndex].selectedOutcome));
         }
 
         // change sprite and show the button

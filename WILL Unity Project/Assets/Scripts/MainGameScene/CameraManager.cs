@@ -7,7 +7,6 @@ public class CameraManager : MonoBehaviour
 {
     public static CameraManager Instance;
 
-    public Vector3 defaultCameraPosition;
     public float defaultOrthographicSize;
 
     public float cameraMovementTime;
@@ -21,7 +20,7 @@ public class CameraManager : MonoBehaviour
     private Camera orthographicCamera;
     private float newOrthographicSize;
 
-    private Vector3 focusPosition;
+    private static Vector3 focusPosition = new Vector3(0f, 0f, -5f);
     private BackgroundClicker backgroundClicker;
 
     public event Action<float> onZoomChange; // give zoom level to listener
@@ -36,9 +35,9 @@ public class CameraManager : MonoBehaviour
         orthographicCamera = GetComponent<Camera>();
         backgroundClicker = transform.GetChild(0).GetComponent<BackgroundClicker>();
 
-        newPosition = defaultCameraPosition;
-        transform.position = defaultCameraPosition;
-        focusPosition = defaultCameraPosition;
+        newPosition = focusPosition;
+        transform.position = focusPosition;
+
         // default cameraZoomLevels with smaller number more zoomed out
         // cameraZoomLevels = new float[] {2f, 1f, 0.5f, 0.25f};
 
@@ -85,20 +84,25 @@ public class CameraManager : MonoBehaviour
 
     public void FocusCamera(Vector2 focusPosition)
     {
-        this.focusPosition.x = focusPosition.x;
-        this.focusPosition.y = focusPosition.y;
+        CameraManager.focusPosition.x = focusPosition.x;
+        CameraManager.focusPosition.y = focusPosition.y;
 
         newOrthographicSize = defaultOrthographicSize;
         cameraZoomLevelIndex = Array.IndexOf(cameraZoomLevels, 1f);
         cameraZoomLevel = 1f;
         onZoomChange?.Invoke(cameraZoomLevel);
 
-        newPosition = this.focusPosition;
+        newPosition = CameraManager.focusPosition;
         backgroundClicker.EndInertia();
     }
 
     public void SetNewPosition(Vector3 newPosition)
     {
         this.newPosition = transform.position + newPosition;
+    }
+
+    public static void SetNewFocusPosition()
+    {
+        // TODO: set focus position to the exitted square from back button.
     }
 }

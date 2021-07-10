@@ -13,15 +13,15 @@ public class StoryAnimatedTextManager : MonoBehaviour
     public TMPro.TMP_Text storyText;
 
     public GameObject autoText;
-    public static float writingTime = 0.025f; // 0.025f
+    public static float writingTime = 0.001f; // 0.025f
 
     private StoryData storyData;
     private bool isAUTO;
 
     void Start()
     {
-        storyData = StaticDataManager.storyDatas[StaticDataManager.selectedStoryOutcomes[StaticDataManager.seletedStoryOutcomeIndex].Key];
-        List<string> outcomeText = storyData.outcomes[StaticDataManager.selectedStoryOutcomes[StaticDataManager.seletedStoryOutcomeIndex].Value].outcomeText;
+        storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
+        List<string> outcomeText = storyData.outcomes[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Value].outcomeText;
 
         titleText.text = storyData.title;
         storyText.text = "";
@@ -172,4 +172,8 @@ public class StoryAnimatedTextManager : MonoBehaviour
         yield break;
     }
 
+    public void BackToMainGame()
+    {
+        SceneManager.LoadSceneAsync("MainGameScene");
+    }
 }

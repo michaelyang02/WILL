@@ -1,7 +1,8 @@
 [
   {
     "index": 0,
-    "discovered": true,
+    "isDiscovered": true,
+    "isRead": false,
     "outcomeDiscovered": [
       true,
       false,
@@ -11,7 +12,8 @@
   },
   {
     "index": 1,
-    "discovered": true,
+    "isDiscovered": true,
+    "isRead": true,
     "outcomeDiscovered": [
       true,
       false,

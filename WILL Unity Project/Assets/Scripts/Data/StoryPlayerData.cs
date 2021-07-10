@@ -4,14 +4,16 @@ using System.Collections.Generic;
 public class StoryPlayerData
 {
     public int index { get; }
-    public bool discovered { get; }
-    public List<bool> outcomeDiscovered { get; }
-    public int selectedOutcome { get; }
+    public bool isDiscovered { get; set; }
+    public bool isRead { get; set; }
+    public List<bool> outcomeDiscovered { get; set; }
+    public int selectedOutcome { get; set; }
 
-    public StoryPlayerData(int index, bool discovered, List<bool> outcomeDiscovered, int selectedOutcome = 0)
+    public StoryPlayerData(int index, bool isDiscovered, bool isRead, List<bool> outcomeDiscovered, int selectedOutcome = 0)
     {
         this.index = index;
-        this.discovered = discovered;
+        this.isDiscovered = isDiscovered;
+        this.isRead = isRead;
         this.outcomeDiscovered = outcomeDiscovered;
         this.selectedOutcome = selectedOutcome;
     }

@@ -1,23 +1,97 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class StoryTextManager : MonoBehaviour
 {
     
-    public GameObject storyGameObject;
+    public GameObject storyTextGameObject;
+    public GameObject startGameObject;
+    public GameObject nextLetterGameObject;
+    public GameObject replayGameObject;
+    public GameObject backGameObject;
+
     private TMPro.TMP_Text storyText;
-    private RectTransform storyRectTransform;
-    private List<string> lines = new List<string>
-    {
-        "Hello, my name is Detective Johnson.", "We would like to ask you a few questions regarding your involvement in the Moray case.",
-        "\"What's there to say?\" I asked. There is nothing to say. At least not to you.", "Really?", @"Yes, really, I know who you are, Detective Johnson: the most corrupt cop in the land.", "Well, then. If you don't mind being taken into custody.",
-        "In handcuffs.", "I'd like to see you try."
-    };
 
     void Start()
     {
-        storyText = storyGameObject.GetComponent<TMPro.TMP_Text>();
-        storyRectTransform = storyGameObject.GetComponent<RectTransform>();
+        storyText = storyTextGameObject.GetComponent<TMPro.TMP_Text>();
+
+        StoryData storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
+        StoryPlayerData storyPlayerData = StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
+        
+        GetComponent<Image>().color = storyData.GetColor();
+
+        // add story text
+        string initialText = string.Join("\n", storyData.initialText).Replace("-", "\n").Replace("\\", "");
+        string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.
+        SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Value].outcomeText).Replace("-", "\n").Replace("\\", "");
+    
+        storyText.text = initialText + "\n\n" + outcomeText;
+
+        // set story as read
+        storyPlayerData.isRead = true;
+
+        // start button
+        bool isAllCompanionRead = true;
+        foreach (int companionIndex in storyData.companionIndices)
+        {
+            if (StaticDataManager.StoryPlayerDatas[companionIndex].isRead == false)
+            {
+                isAllCompanionRead = false;
+                break;
+            }
+        }
+
+        if (isAllCompanionRead == true || StaticDataManager.SeletedStoryOutcomeIndex == StaticDataManager.SelectedStoryOutcomes.Count - 1)
+        {
+            startGameObject.SetActive(true);
+        }
+
+        // next letter button
+        if (StaticDataManager.SelectedStoryOutcomes.Count != 1)
+        {
+            nextLetterGameObject.SetActive(true);
+        }
+
+        // replay button
+
+        replayGameObject.SetActive(true);
+
+        // back button
+
+        backGameObject.SetActive(true);
+    }
+
+    public void StartRerrangement()
+    {
+        SceneManager.LoadSceneAsync("StoryRearrangementScene");
+    }
+
+    public void GoToNextLetter()
+    {
+        int nextStoryOutcomeIndex = (StaticDataManager.SeletedStoryOutcomeIndex + 1) % StaticDataManager.SelectedStoryOutcomes.Count;
+        StaticDataManager.SeletedStoryOutcomeIndex = nextStoryOutcomeIndex;
+
+        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[nextStoryOutcomeIndex].Key].isRead == true)
+        {
+            SceneManager.LoadSceneAsync("StoryTextScene");
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+        }
+    }
+
+    public void ReplayStory()
+    {
+        SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+    }
+
+    public void BackToMainGame()
+    {
+        SceneManager.LoadSceneAsync("MainGameScene");
     }
 }
