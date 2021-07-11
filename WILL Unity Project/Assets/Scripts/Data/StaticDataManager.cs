@@ -26,8 +26,6 @@ public class StaticDataManager : MonoBehaviour
         }
     }
 
-
-
     // for main game
     public static StoryDataList StoryDatas = new StoryDataList();
     public static StoryPlayerDataList StoryPlayerDatas = new StoryPlayerDataList();
@@ -36,4 +34,6 @@ public class StaticDataManager : MonoBehaviour
     // for animated and rearrangement
     public static List<KeyValuePair<int, int>> SelectedStoryOutcomes = new List<KeyValuePair<int, int>>();
     public static int SeletedStoryOutcomeIndex = 0;
+
+    public static Dictionary<int, Vector2Int> StoryPosition = new Dictionary<int, Vector2Int>();
 }

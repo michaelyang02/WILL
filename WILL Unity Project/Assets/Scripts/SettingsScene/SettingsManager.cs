@@ -58,8 +58,8 @@ public class SettingsManager : MonoBehaviour
         volumeSlider.value = volume;
 
         writingSpeedSlider.value = 1f / StoryAnimatedTextManager.writingTime;
-        writingSpeedSlider.maxValue = writingSpeedSlider.value + 20f;
-        writingSpeedSlider.minValue = writingSpeedSlider.value - 20f;
+        writingSpeedSlider.maxValue = 100f;
+        writingSpeedSlider.minValue = 40f;
 
 
         // TODO: save these settings in file and load them next time

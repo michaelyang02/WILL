@@ -105,6 +105,8 @@ public class SquareController : MonoBehaviour
             StaticDataManager.SelectedStoryOutcomes.Add(new KeyValuePair<int, int>(companionIndex, StaticDataManager.StoryPlayerDatas[companionIndex].selectedOutcome));
         }
 
+        StaticDataManager.SeletedStoryOutcomeIndex = 0;
+
         // change sprite and show the button
         spriteRenderer.sprite = squareFilledSprite;
         isClicked = true;

@@ -123,6 +123,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef18f7b0601ceda44a69ec6498013df7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  squareBorderSprite: {fileID: 21300000, guid: 80a559370cdbc704a97d498bbea30f65, type: 3}
-  squareFilledSprite: {fileID: 21300000, guid: 8462e40f3e5727e408a478f5fafe8581, type: 3}
+  squareBorderSprite: {fileID: 21300000, guid: b50da91081b840741a9b9ef018834501, type: 3}
+  squareFilledSprite: {fileID: 21300000, guid: c19c14ab726c153459ee6bc1544e833c, type: 3}
   descriptionButtonPrefab: {fileID: 4507278137216814762, guid: 1c05dfb1ed827d84caeffb58de723488, type: 3}

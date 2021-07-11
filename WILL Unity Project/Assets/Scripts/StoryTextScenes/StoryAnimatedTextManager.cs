@@ -174,6 +174,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
 
     public void BackToMainGame()
     {
+        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key]);
         SceneManager.LoadSceneAsync("MainGameScene");
     }
 }

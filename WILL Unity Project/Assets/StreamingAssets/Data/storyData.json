@@ -5,9 +5,7 @@
       1,
       2
     ],
-    "companionIndices": [
-      1
-    ],
+    "companionIndices": [],
     "character": "MrsJacobs",
     "title": "Time is right",
     "initialText": [
@@ -44,13 +42,15 @@
       2
     ],
     "companionIndices": [
-      0
+      0,
+      1,
+      1
     ],
     "character": "DetectiveJohnson",
     "title": "Don't ask me why the text is so long!",
     "initialText": [
-      "Detective Johnson guy",
-      "As I was still preoccupied by that exotic cigar smell, I was brought back to reality by a loud scream somewhere above.",
+      "Detective Johnson guy.\n",
+      "As I was still preoccupied by that exotic cigar smell,\\ I was brought back to reality by a loud scream somewhere above.",
       "God knows what happened there.\n",
       "I finally reached the landing of my floor.",
       "An apple sudden popped out of one of my grocery bags and rolled on the ground.",

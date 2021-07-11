@@ -13,6 +13,7 @@ public class MainGameManager : MonoBehaviour
 
     public event Action<GameObject> onAnyClicked;
 
+    private static bool isLoaded = false;
 
     void Awake()
     {
@@ -25,13 +26,18 @@ public class MainGameManager : MonoBehaviour
 
         InitialiseSquare(0, Vector2Int.zero);
         InitialiseSquare(1, Vector2Int.one * 2);
-    
+        isLoaded = true;    
     }
 
     void InitialiseSquare(int storyIndex, Vector2Int position)
     {
         GameObject gameObject = Instantiate(squarePrefab, (Vector2) position * gridSize, Quaternion.identity);
         gameObject.GetComponent<SquareController>().storyIndex = storyIndex;
+        
+        if (!isLoaded)
+        {
+            StaticDataManager.StoryPosition.Add(storyIndex, position);
+        }
     }
 
     public void SquareClicked(GameObject clickedSquare)

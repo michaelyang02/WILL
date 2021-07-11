@@ -20,7 +20,7 @@ public class CameraManager : MonoBehaviour
     private Camera orthographicCamera;
     private float newOrthographicSize;
 
-    private static Vector3 focusPosition = new Vector3(0f, 0f, -5f);
+    public static Vector3 FocusPosition = new Vector3(0f, 0f, -5f);
     private BackgroundClicker backgroundClicker;
 
     public event Action<float> onZoomChange; // give zoom level to listener
@@ -35,8 +35,8 @@ public class CameraManager : MonoBehaviour
         orthographicCamera = GetComponent<Camera>();
         backgroundClicker = transform.GetChild(0).GetComponent<BackgroundClicker>();
 
-        newPosition = focusPosition;
-        transform.position = focusPosition;
+        newPosition = FocusPosition;
+        transform.position = FocusPosition;
 
         // default cameraZoomLevels with smaller number more zoomed out
         // cameraZoomLevels = new float[] {2f, 1f, 0.5f, 0.25f};
@@ -54,7 +54,7 @@ public class CameraManager : MonoBehaviour
         {
             if (Input.GetKeyUp(KeyCode.F))
             {
-                FocusCamera(focusPosition);
+                FocusCamera(FocusPosition);
             }
 
             if (Input.mouseScrollDelta.y < 0)
@@ -84,15 +84,15 @@ public class CameraManager : MonoBehaviour
 
     public void FocusCamera(Vector2 focusPosition)
     {
-        CameraManager.focusPosition.x = focusPosition.x;
-        CameraManager.focusPosition.y = focusPosition.y;
+        CameraManager.FocusPosition.x = focusPosition.x;
+        CameraManager.FocusPosition.y = focusPosition.y;
 
         newOrthographicSize = defaultOrthographicSize;
         cameraZoomLevelIndex = Array.IndexOf(cameraZoomLevels, 1f);
         cameraZoomLevel = 1f;
         onZoomChange?.Invoke(cameraZoomLevel);
 
-        newPosition = CameraManager.focusPosition;
+        newPosition = CameraManager.FocusPosition;
         backgroundClicker.EndInertia();
     }
 
@@ -101,8 +101,8 @@ public class CameraManager : MonoBehaviour
         this.newPosition = transform.position + newPosition;
     }
 
-    public static void SetNewFocusPosition()
+    public static void SetFocusPosition(Vector2Int position)
     {
-        // TODO: set focus position to the exitted square from back button.
+        FocusPosition = new Vector3((float)position.x, (float)position.y, -5f);
     }
 }

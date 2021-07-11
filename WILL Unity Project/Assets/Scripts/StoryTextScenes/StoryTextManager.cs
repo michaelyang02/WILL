@@ -29,7 +29,7 @@ public class StoryTextManager : MonoBehaviour
         string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.
         SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Value].outcomeText).Replace("-", "\n").Replace("\\", "");
     
-        storyText.text = initialText + "\n\n" + outcomeText;
+        storyText.text = "\n" + initialText + "\n\n" + outcomeText + "\n ";
 
         // set story as read
         storyPlayerData.isRead = true;
@@ -55,14 +55,6 @@ public class StoryTextManager : MonoBehaviour
         {
             nextLetterGameObject.SetActive(true);
         }
-
-        // replay button
-
-        replayGameObject.SetActive(true);
-
-        // back button
-
-        backGameObject.SetActive(true);
     }
 
     public void StartRerrangement()
@@ -92,6 +84,7 @@ public class StoryTextManager : MonoBehaviour
 
     public void BackToMainGame()
     {
+        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key]);
         SceneManager.LoadSceneAsync("MainGameScene");
     }
 }
