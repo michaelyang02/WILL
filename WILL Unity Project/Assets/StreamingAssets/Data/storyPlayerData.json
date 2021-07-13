@@ -2,7 +2,7 @@
   {
     "index": 0,
     "isDiscovered": true,
-    "isRead": false,
+    "isRead": true,
     "outcomeDiscovered": [
       true,
       false,

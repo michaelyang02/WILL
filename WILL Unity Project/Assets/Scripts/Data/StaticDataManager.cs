@@ -35,5 +35,5 @@ public class StaticDataManager : MonoBehaviour
     public static List<KeyValuePair<int, int>> SelectedStoryOutcomes = new List<KeyValuePair<int, int>>();
     public static int SeletedStoryOutcomeIndex = 0;
 
-    public static Dictionary<int, Vector2Int> StoryPosition = new Dictionary<int, Vector2Int>();
+    public static Dictionary<int, Vector2> StoryPosition = new Dictionary<int, Vector2>();
 }

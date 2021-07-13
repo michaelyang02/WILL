@@ -88,7 +88,7 @@ public class StoryRearragnementManager : MonoBehaviour
 
             for (int kvpIndex = 0; kvpIndex < lastLineTypes.Count; kvpIndex++)
             {
-                string text = storyData.initialText[storyData.initialText.Count + lastLineTypes[kvpIndex].Key].Replace("\\", ""); 
+                string text = storyData.initialText[storyData.initialText.Count + lastLineTypes[kvpIndex].Key].Replace("\\", "");
 
                 // combine lines if 1) they are of the same type and 2) they are not draggable
                 if (kvpIndex - 1 >= 0 &&
@@ -99,7 +99,7 @@ public class StoryRearragnementManager : MonoBehaviour
                 }
                 else
                 {
-                    textBlocks.Add(new TextBlock {text = text, flag = lastLineTypes[kvpIndex].Value});
+                    textBlocks.Add(new TextBlock { text = text, flag = lastLineTypes[kvpIndex].Value });
                 }
             }
 
@@ -110,6 +110,7 @@ public class StoryRearragnementManager : MonoBehaviour
             foreach (TextBlock textBlock in textBlocks)
             {
                 GameObject tempTextboxGameObject = Instantiate(textboxPrefab);
+                tempTextboxGameObject.GetComponent<TextboxController>().textboxFlag = textBlock.flag;
                 tempTextboxGameObject.transform.SetParent(tempSubPanelGameObject.transform, false);
 
                 Image backgroundImage = tempTextboxGameObject.transform.GetChild(1).GetComponent<Image>();
@@ -144,6 +145,7 @@ public class StoryRearragnementManager : MonoBehaviour
             }
 
             GameObject outcomeTextboxGameObject = Instantiate(textboxPrefab);
+            outcomeTextboxGameObject.GetComponent<TextboxController>().textboxFlag = StoryData.LineFlags.None;
             outcomeTextboxGameObject.transform.SetParent(tempSubPanelGameObject.transform, false);
 
             // set text
@@ -158,6 +160,25 @@ public class StoryRearragnementManager : MonoBehaviour
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
+
+
+        // initialise sizes and boundaries
+
+        Canvas canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+
+        TextboxController.LeftMargin = rearrangementRectTransform.offsetMin.x * canvas.scaleFactor;
+        TextboxController.RightMargin = (canvas.GetComponent<RectTransform>().rect.width + rearrangementRectTransform.offsetMax.x) * canvas.scaleFactor;
+
+        TextboxController.SubPanelBoundaries = new Dictionary<Transform, Vector2>();
+
+        // add boundaries to dictionary
+        foreach (Transform child in rearrangementPanel.transform)
+        {
+            float leftBoundary = child.GetComponent<RectTransform>().anchoredPosition.x * canvas.scaleFactor + TextboxController.LeftMargin; 
+            float rightBoundary = leftBoundary + child.GetComponent<RectTransform>().sizeDelta.x * canvas.scaleFactor;
+
+            TextboxController.SubPanelBoundaries.Add(child, new Vector2(leftBoundary, rightBoundary));
+        }
     }
 
     public void BackToMainGame()

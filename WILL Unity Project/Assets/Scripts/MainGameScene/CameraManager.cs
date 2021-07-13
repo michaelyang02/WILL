@@ -101,8 +101,8 @@ public class CameraManager : MonoBehaviour
         this.newPosition = transform.position + newPosition;
     }
 
-    public static void SetFocusPosition(Vector2Int position)
+    public static void SetFocusPosition(Vector2 position)
     {
-        FocusPosition = new Vector3((float)position.x, (float)position.y, -5f);
+        FocusPosition = new Vector3(position.x, position.y, -5f);
     }
 }
