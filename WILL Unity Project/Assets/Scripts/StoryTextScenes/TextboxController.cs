@@ -4,16 +4,17 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class TextboxController : BoxController, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     public GameObject placeholderPrefab;
-    private Transform canvasTransform;
-    private ScrollRect scrollRect;
-    private Transform rearrangementPanelTransform;
-    private RectTransform rearrangementPanelRectTransform;
+    public static Transform CanvasTransform;
+    public static ScrollRect ScrollRect;
+    public static Transform RearrangementPanelTransform;
+    public static RectTransform RearrangementPanelRectTransform;
+    public static Transform BackButtonTransform;
     private RectTransform textboxRectTransform;
     private Transform placeholderTransform;
-    private Transform backButtonTransform;
+    private Image placeholderImage;
 
     private Transform lastSubpanelTransform;
     private int lastPlaceholderIndex;
@@ -21,25 +22,26 @@ public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Transform currentSubpanelTransform;
     private int currentPlaceholderIndex;
 
-    public StoryData.LineFlags textboxFlag { get; set; }
-
     private Vector2 lastPosition;
+    private static bool isValidPosition;
 
     public static Dictionary<Transform, Vector2> SubPanelBoundaries;
     public static float LeftMargin;
     public static float RightMargin;
 
-    private Coroutine scrollCoroutine;
+    private static Coroutine ScrollCoroutine;
+    private static float ScrollSpeed = 0.01f;
 
+    private static Color ValidColor = new Color(0f, 0f, 0f, 0.5f);
+    private static Color InvalidColor = new Color(1f, 0f, 0f, 0.75f);
+
+    private Transform lastSwitchingSubpanelTransform;
+    private int lastSwitchingIndex;
+    private static bool isSwitched;
 
     void Start()
     {
         textboxRectTransform = GetComponent<RectTransform>();
-        canvasTransform = GameObject.Find("Canvas").transform;
-        scrollRect = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
-        rearrangementPanelTransform = GameObject.Find("Rearrangement Panel").transform;
-        rearrangementPanelRectTransform = rearrangementPanelTransform.GetComponent<RectTransform>();
-        backButtonTransform = GameObject.Find("Back").transform;
 
         StartCoroutine(Initialise());
     }
@@ -52,37 +54,46 @@ public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandle
         {
             placeholderTransform = Instantiate(placeholderPrefab).transform;
             placeholderTransform.GetComponent<RectTransform>().sizeDelta = textboxRectTransform.sizeDelta;
+            placeholderTransform.GetComponent<BoxController>().storyIndex = storyIndex;
+            placeholderTransform.GetComponent<BoxController>().boxFlag = boxFlag;
+
             placeholderTransform.gameObject.SetActive(false);
-            placeholderTransform.SetParent(canvasTransform, false);
+            placeholderTransform.SetParent(CanvasTransform, false);
+
+            placeholderImage = placeholderTransform.GetComponent<Image>();
         }
         yield break;
     }
 
     bool IsDraggable()
     {
-        return (textboxFlag & StoryData.LineFlags.Draggable) == StoryData.LineFlags.Draggable;
+        return (boxFlag & StoryData.LineFlags.Draggable) == StoryData.LineFlags.Draggable;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (IsDraggable())
         {
+            isValidPosition = true;
+            isSwitched = false;
+            placeholderImage.color = ValidColor;
+
             lastPosition = textboxRectTransform.position;
             textboxRectTransform.Rotate(new Vector3(0f, 0f, 0.5f));
 
             currentSubpanelTransform = transform.parent;
             currentPlaceholderIndex = transform.GetSiblingIndex();
-            lastSubpanelTransform = currentSubpanelTransform;
-            lastPlaceholderIndex = currentPlaceholderIndex;
+            lastSubpanelTransform = transform.parent;
+            lastPlaceholderIndex = transform.GetSiblingIndex();
 
-            transform.SetParent(canvasTransform, true);
-            transform.SetSiblingIndex(backButtonTransform.GetSiblingIndex());
+            transform.SetParent(CanvasTransform, true);
+            transform.SetSiblingIndex(BackButtonTransform.GetSiblingIndex());
 
             placeholderTransform.gameObject.SetActive(true);
             placeholderTransform.SetParent(lastSubpanelTransform, false);
             placeholderTransform.SetSiblingIndex(lastPlaceholderIndex);
 
-            scrollCoroutine = StartCoroutine(Scroll());
+            ScrollCoroutine = StartCoroutine(Scroll());
         }
     }
 
@@ -105,19 +116,13 @@ public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandle
             {
                 if (x < LeftMargin) // far left
                 {
-                    if (!currentSubpanelTransform.Equals(rearrangementPanelTransform.GetChild(0)))
-                    {
-                        currentSubpanelTransform = rearrangementPanelTransform.GetChild(0);
-                        isSubpanelChanged = true;
-                    }
+                    isSubpanelChanged = (currentSubpanelTransform != RearrangementPanelTransform.GetChild(0));
+                    if (isSubpanelChanged) currentSubpanelTransform = RearrangementPanelTransform.GetChild(0);
                 }
                 else if (x > RightMargin) // far right
                 {
-                    if (!currentSubpanelTransform.Equals(rearrangementPanelTransform.GetChild(rearrangementPanelTransform.childCount - 1)))
-                    {
-                        currentSubpanelTransform = rearrangementPanelTransform.GetChild(rearrangementPanelTransform.childCount - 1);
-                        isSubpanelChanged = true;
-                    }
+                    isSubpanelChanged = (currentSubpanelTransform != RearrangementPanelTransform.GetChild(RearrangementPanelTransform.childCount - 1));
+                    if (isSubpanelChanged) currentSubpanelTransform = RearrangementPanelTransform.GetChild(RearrangementPanelTransform.childCount - 1);
                 }
                 else // within one subpanel
                 {
@@ -175,13 +180,77 @@ public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandle
                 }
             }
 
-            if (isSubpanelChanged || isIndexChanged)
-            {
+            if ((isSubpanelChanged && (boxFlag & StoryData.LineFlags.Switching) == 0) || isIndexChanged)
+            { // either subpanel changed but not switching or index changed
                 placeholderTransform.SetParent(currentSubpanelTransform, false);
                 placeholderTransform.SetSiblingIndex(currentPlaceholderIndex);
             }
+            else if (isSubpanelChanged)
+            { // if subpanel change and switching
+                if (currentSubpanelTransform != lastSubpanelTransform)
+                { // if not in last transform
+                    placeholderTransform.SetParent(currentSubpanelTransform, false);
 
-            // TODO: add logic to check if the position is invalid, e.g. wrong order
+                    if (isSwitched)
+                    {
+                        Transform oldSwitchedTransform = lastSubpanelTransform.GetChild(lastPlaceholderIndex);
+                        oldSwitchedTransform.SetParent(lastSwitchingSubpanelTransform);
+                        oldSwitchedTransform.SetSiblingIndex(lastSwitchingIndex);
+                    }
+
+                    Transform switchingTransform = null;
+
+                    foreach (Transform child in currentSubpanelTransform)
+                    {
+                        if ((child.GetComponent<BoxController>().boxFlag & StoryData.LineFlags.Switching) == StoryData.LineFlags.Switching)
+                        { // check if new subpanel has switching textbox too
+                            switchingTransform = child;
+                            lastSwitchingSubpanelTransform = currentSubpanelTransform;
+                            lastSwitchingIndex = child.GetSiblingIndex();
+                            break;
+                        }
+                    }
+
+                    if (lastSwitchingIndex < currentPlaceholderIndex) currentPlaceholderIndex--;
+                    placeholderTransform.SetSiblingIndex(currentPlaceholderIndex);
+
+                    if (switchingTransform != null)
+                    {
+                        switchingTransform.SetParent(lastSubpanelTransform, false);
+                        switchingTransform.SetSiblingIndex(lastPlaceholderIndex);
+                    }
+                    isSwitched = (switchingTransform != null);
+                }
+                else
+                { // returned to the last transform
+
+                    placeholderTransform.SetParent(currentSubpanelTransform, false);
+
+                    if (isSwitched)
+                    {
+                        Transform oldSwitchedTransform = lastSubpanelTransform.GetChild(lastPlaceholderIndex);
+                        if (lastPlaceholderIndex < currentPlaceholderIndex) currentPlaceholderIndex++;
+                        oldSwitchedTransform.SetParent(lastSwitchingSubpanelTransform);
+                        oldSwitchedTransform.SetSiblingIndex(lastSwitchingIndex);
+                    }
+
+                    placeholderTransform.SetSiblingIndex(currentPlaceholderIndex);
+
+                    isSwitched = false;
+                }
+            }
+
+            if (isSubpanelChanged || isIndexChanged)
+            {
+                CheckValidity();
+
+                // the arrangement is invalid if either
+                // 1) invalid position
+                // 2) switching, not switched and current subpanel is not the last one
+                placeholderImage.color = (!isValidPosition || ((boxFlag & StoryData.LineFlags.Switching) ==
+                StoryData.LineFlags.Switching && !isSwitched && currentSubpanelTransform != lastSubpanelTransform)) ? InvalidColor : ValidColor;
+            }
+
         }
     }
 
@@ -192,26 +261,75 @@ public class TextboxController : MonoBehaviour, IPointerDownHandler, IDragHandle
             textboxRectTransform.Rotate(new Vector3(0f, 0f, -0.5f));
 
             placeholderTransform.gameObject.SetActive(false);
-            placeholderTransform.SetParent(canvasTransform, true);
+            placeholderTransform.SetParent(CanvasTransform, true);
 
-            transform.SetParent(currentSubpanelTransform, false);
-            transform.SetSiblingIndex(currentPlaceholderIndex);
+            if (!isValidPosition || ((boxFlag & StoryData.LineFlags.Switching) ==
+            StoryData.LineFlags.Switching && !isSwitched && currentSubpanelTransform !=
+            lastSubpanelTransform))
+            {
+                transform.SetParent(lastSubpanelTransform, false);
 
-            StopCoroutine(scrollCoroutine);
+                if (isSwitched)
+                {
+                    Transform oldSwtichedTransform = lastSubpanelTransform.GetChild(lastPlaceholderIndex);
+                    oldSwtichedTransform.SetParent(lastSwitchingSubpanelTransform);
+                    oldSwtichedTransform.SetSiblingIndex(lastSwitchingIndex);
+                }
+
+                transform.SetSiblingIndex(lastPlaceholderIndex);
+
+            }
+            else
+            {
+                transform.SetParent(currentSubpanelTransform, false);
+                transform.SetSiblingIndex(currentPlaceholderIndex);
+            }
+
+            StopCoroutine(ScrollCoroutine);
         }
+    }
+
+    static void CheckValidity()
+    {
+        foreach (Transform subpanelTransform in RearrangementPanelTransform)
+        { // check every subpanel and every textbox
+            int storyIndex = subpanelTransform.GetComponent<SubpanelController>().storyIndex;
+            byte highestNumber = 0;
+
+            foreach (Transform textboxTransform in subpanelTransform)
+            {
+                BoxController boxController = textboxTransform.GetComponent<BoxController>();
+
+                if ((boxController.boxFlag & StoryData.LineFlags.Unswappable) == StoryData.LineFlags.Unswappable &&
+                boxController.storyIndex != storyIndex)
+                { // if unswappable and swapped
+                    isValidPosition = false;
+                    return;
+                }
+
+                byte number = (byte)(boxController.boxFlag & (StoryData.LineFlags.Numbered1 | StoryData.LineFlags.Numbered2 | StoryData.LineFlags.Numbered3));
+                if (number != 0 && number < highestNumber)
+                { // if number lower than previous ones
+                    isValidPosition = false;
+                    return;
+                }
+                if (number > highestNumber) highestNumber = number;
+            }
+        }
+        isValidPosition = true;
     }
 
     IEnumerator Scroll()
     {
         while (true)
         {
-            if (Input.mousePosition.y > Screen.height * 0.9f)
+            if (Input.mousePosition.y > Screen.height * 0.95f)
             { // scroll up
-                scrollRect.verticalNormalizedPosition += 0.005f;
+                ScrollRect.verticalNormalizedPosition += ScrollSpeed;
             }
-            else if (Input.mousePosition.y < Screen.height * 0.1f)
+            else if (Input.mousePosition.y < Screen.height * 0.05f)
             { // scroll down
-                scrollRect.verticalNormalizedPosition -= 0.005f;
+                ScrollRect.verticalNormalizedPosition -= ScrollSpeed;
             }
             yield return null;
         }

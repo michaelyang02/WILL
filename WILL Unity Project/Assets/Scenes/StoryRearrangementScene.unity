@@ -698,6 +698,12 @@ MonoBehaviour:
   subPanelPrefab: {fileID: 5489293039436265461, guid: c6dcdf896d1826a4a8f1c9f6c38a1308, type: 3}
   textboxPrefab: {fileID: 8513218086296927216, guid: 80428054b06f360478055ca8fda6d86b, type: 3}
   backgroundPanelPrefab: {fileID: 5539510573530776250, guid: dc837bdfe06537449b36fc9142129184, type: 3}
+  typeImagePrefab: {fileID: 2058560138591240477, guid: 615234abbd8d5a541aabba0425fe2386, type: 3}
+  switchingSprite: {fileID: 21300000, guid: 2dced6aa921cd314a95d128e6896f4a6, type: 3}
+  unswappableSprite: {fileID: 21300000, guid: 1d9c0d1f1871ecb45bb98bfafd476212, type: 3}
+  numbered1Sprite: {fileID: 21300000, guid: 4468a51614363ba41a4484c0f6ee7e48, type: 3}
+  numbered2Sprite: {fileID: 21300000, guid: 8a7902fc6ca15c9449079ff9d01f37fa, type: 3}
+  numbered3Sprite: {fileID: 21300000, guid: ef94a98e0a96f16428c77c57516e2e9c, type: 3}
 --- !u!1 &1342593094
 GameObject:
   m_ObjectHideFlags: 0

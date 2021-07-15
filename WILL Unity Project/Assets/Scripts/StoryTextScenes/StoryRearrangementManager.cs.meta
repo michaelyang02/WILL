@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 41c529f7abd16b448bd24dbc21eda803
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - leftPanel: {instanceID: 0}
+  - rightPanel: {instanceID: 0}
+  - middlePanel: {instanceID: 0}
+  - rearrangementPanel: {instanceID: 0}
+  - subPanelPrefab: {instanceID: 0}
+  - textboxPrefab: {instanceID: 0}
+  - backgroundPanelPrefab: {instanceID: 0}
+  - typeImagePrefab: {instanceID: 0}
+  - switchingSprite: {instanceID: 0}
+  - unswappableSprite: {instanceID: 0}
+  - numbered1Sprite: {instanceID: 0}
+  - numbered2Sprite: {instanceID: 0}
+  - numbered3Sprite: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

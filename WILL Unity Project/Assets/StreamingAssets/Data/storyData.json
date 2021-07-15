@@ -27,8 +27,8 @@
       }
     ],
     "lastLineTypes": {
-      "-1": "Draggable",
-      "-2": "Draggable",
+      "-1": "Draggable, Switching",
+      "-2": "Draggable, Numbered2",
       "-3": "Draggable",
       "-4": "None",
       "-5": "None"
@@ -43,7 +43,8 @@
     ],
     "companionIndices": [
       0,
-      1
+      1,
+      0
     ],
     "character": "DetectiveJohnson",
     "title": "Don't ask me why the text is so long!",
@@ -52,7 +53,7 @@
       "As I was still preoccupied by that exotic cigar smell,\\ I was brought back to reality by a loud scream somewhere above.",
       "God knows what happened there.\n",
       "I finally reached the landing of my floor.",
-      "An apple sudden popped out of one of my grocery bags and rolled on the ground.",
+      "An apple sudden popped out.",
       "I bent over to reach it."
     ],
     "outcomes": [
@@ -68,8 +69,8 @@
     ],
     "lastLineTypes": {
       "-1": "Draggable",
-      "-2": "Draggable",
-      "-3": "Draggable",
+      "-2": "None, Numbered2",
+      "-3": "Draggable, Switching, Numbered1",
       "-4": "None",
       "-5": "None",
       "-6": "None"
