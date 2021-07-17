@@ -108,6 +108,7 @@ public class SerializationManager
         jsonSerializerSettings.Converters.Add(new EnumConverter<StoryData.LineFlags>());
         jsonSerializerSettings.Converters.Add(new EnumConverter<StoryData.Effect.EffectType>());
         jsonSerializerSettings.Converters.Add(new StringJsonConverter());
+        jsonSerializerSettings.Converters.Add(new TextboxIndicesJsonConverter());
         return jsonSerializerSettings;
     }
 

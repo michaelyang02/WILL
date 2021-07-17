@@ -5,7 +5,6 @@
       1,
       2
     ],
-    "companionIndices": [],
     "character": "MrsJacobs",
     "title": "Time is right",
     "initialText": [
@@ -27,11 +26,11 @@
       }
     ],
     "lastLineTypes": {
-      "-1": "Draggable, Switching",
-      "-2": "Draggable, Numbered2",
-      "-3": "Draggable",
+      "-5": "None",
       "-4": "None",
-      "-5": "None"
+      "-3": "Draggable",
+      "-2": "Draggable",
+      "-1": "Draggable"
     },
     "lineEffects": {}
   },
@@ -40,11 +39,6 @@
     "childrenIndices": [
       1,
       2
-    ],
-    "companionIndices": [
-      0,
-      1,
-      0
     ],
     "character": "DetectiveJohnson",
     "title": "Don't ask me why the text is so long!",
@@ -68,12 +62,12 @@
       }
     ],
     "lastLineTypes": {
-      "-1": "Draggable",
-      "-2": "None, Numbered2",
-      "-3": "Draggable, Switching, Numbered1",
-      "-4": "None",
+      "-6": "None",
       "-5": "None",
-      "-6": "None"
+      "-4": "None",
+      "-3": "Draggable, Switching, Numbered1",
+      "-2": "None, Numbered2",
+      "-1": "Draggable"
     },
     "lineEffects": {}
   }

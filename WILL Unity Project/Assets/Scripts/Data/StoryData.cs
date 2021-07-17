@@ -110,7 +110,6 @@ public class StoryData
 
     public int index { get; }
     public List<int> childrenIndices { get; }
-    public List<int> companionIndices { get; }
 
     public Character character { get; }
 
@@ -121,13 +120,12 @@ public class StoryData
     public Dictionary<int, Effect> lineEffects { get; }
 
     public StoryData(int index, List<int> childrenIndices,
-    List<int> companionIndices, Character character, string title,
+    Character character, string title,
     List<string> initialText, List<Outcome> outcomes,
     Dictionary<int, LineFlags> lastLineTypes, Dictionary<int, Effect> lineEffects)
     {
         this.index = index;
         this.childrenIndices = childrenIndices;
-        this.companionIndices = companionIndices;
         this.character = character;
         this.title = title;
         this.initialText = initialText;

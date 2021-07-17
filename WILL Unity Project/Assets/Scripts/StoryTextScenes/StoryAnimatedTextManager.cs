@@ -20,8 +20,8 @@ public class StoryAnimatedTextManager : MonoBehaviour
 
     void Start()
     {
-        storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
-        List<string> outcomeText = storyData.outcomes[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Value].outcomeText;
+        storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
+        List<string> outcomeText = storyData.outcomes[StaticDataManager.StoryPlayerDatas[storyData.index].selectedOutcome].outcomeText;
 
         titleText.text = storyData.title;
         storyText.text = "";
@@ -174,7 +174,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
 
     public void BackToMainGame()
     {
-        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key]);
+        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[storyData.index]);
         SceneManager.LoadSceneAsync("MainGameScene");
     }
 }

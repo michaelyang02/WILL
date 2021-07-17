@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class SquareController : MonoBehaviour
 {
@@ -97,15 +98,9 @@ public class SquareController : MonoBehaviour
     void Select()
     {
         // add selected storyData to StaticDataManager
-        StaticDataManager.SelectedStoryOutcomes.Clear();
-        StaticDataManager.SelectedStoryOutcomes.Add(new KeyValuePair<int, int>(storyData.index, storyPlayerData.selectedOutcome));
+        StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas[storyIndex].indices;
 
-        foreach (int companionIndex in storyData.companionIndices)
-        {
-            StaticDataManager.SelectedStoryOutcomes.Add(new KeyValuePair<int, int>(companionIndex, StaticDataManager.StoryPlayerDatas[companionIndex].selectedOutcome));
-        }
-
-        StaticDataManager.SeletedStoryOutcomeIndex = 0;
+        StaticDataManager.SelectedIndex = Array.IndexOf(StaticDataManager.SelectedStoryIndices, storyIndex);
 
         // change sprite and show the button
         spriteRenderer.sprite = squareFilledSprite;

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class StoryTextManager : MonoBehaviour
 {
-    
+
     public GameObject storyTextGameObject;
     public GameObject startGameObject;
     public GameObject nextLetterGameObject;
@@ -19,16 +19,16 @@ public class StoryTextManager : MonoBehaviour
     {
         storyText = storyTextGameObject.GetComponent<TMPro.TMP_Text>();
 
-        StoryData storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
-        StoryPlayerData storyPlayerData = StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key];
-        
+        StoryData storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
+        StoryPlayerData storyPlayerData = StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
+
         GetComponent<Image>().color = storyData.GetColor();
 
         // add story text
         string initialText = string.Join("\n", storyData.initialText).Replace("-", "\n").Replace("\\", "");
-        string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.
-        SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Value].outcomeText).Replace("-", "\n").Replace("\\", "");
-    
+        string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[storyData.index].
+        selectedOutcome].outcomeText).Replace("-", "\n").Replace("\\", "");
+
         storyText.text = "\n" + initialText + "\n\n" + outcomeText + "\n ";
 
         // set story as read
@@ -36,7 +36,7 @@ public class StoryTextManager : MonoBehaviour
 
         // start button
         bool isAllCompanionRead = true;
-        foreach (int companionIndex in storyData.companionIndices)
+        foreach (int companionIndex in StaticDataManager.SelectedStoryIndices)
         {
             if (StaticDataManager.StoryPlayerDatas[companionIndex].isRead == false)
             {
@@ -45,13 +45,13 @@ public class StoryTextManager : MonoBehaviour
             }
         }
 
-        if (isAllCompanionRead == true || StaticDataManager.SeletedStoryOutcomeIndex == StaticDataManager.SelectedStoryOutcomes.Count - 1)
+        if (isAllCompanionRead == true)
         {
             startGameObject.SetActive(true);
         }
 
         // next letter button
-        if (StaticDataManager.SelectedStoryOutcomes.Count != 1)
+        if (StaticDataManager.SelectedStoryIndices.Length != 1)
         {
             nextLetterGameObject.SetActive(true);
         }
@@ -64,10 +64,10 @@ public class StoryTextManager : MonoBehaviour
 
     public void GoToNextLetter()
     {
-        int nextStoryOutcomeIndex = (StaticDataManager.SeletedStoryOutcomeIndex + 1) % StaticDataManager.SelectedStoryOutcomes.Count;
-        StaticDataManager.SeletedStoryOutcomeIndex = nextStoryOutcomeIndex;
+        int nextIndex = (StaticDataManager.SelectedIndex + 1) % StaticDataManager.SelectedStoryIndices.Length;
+        StaticDataManager.SelectedIndex = nextIndex;
 
-        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[nextStoryOutcomeIndex].Key].isRead == true)
+        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryIndices[nextIndex]].isRead == true)
         {
             SceneManager.LoadSceneAsync("StoryTextScene");
         }
@@ -84,7 +84,7 @@ public class StoryTextManager : MonoBehaviour
 
     public void BackToMainGame()
     {
-        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key]);
+        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);
         SceneManager.LoadSceneAsync("MainGameScene");
     }
 }

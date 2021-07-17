@@ -7,12 +7,13 @@ using UnityEngine.SceneManagement;
 
 public class StoryRearrangementManager : MonoBehaviour
 {
-
     public GameObject leftPanel;
     public GameObject rightPanel;
     public GameObject middlePanel;
 
     public GameObject rearrangementPanel;
+
+    public Transform tempTextboxParentTransform;
 
     public GameObject subPanelPrefab;
     public GameObject textboxPrefab;
@@ -27,27 +28,29 @@ public class StoryRearrangementManager : MonoBehaviour
 
     private Color typeColor = new Color(1f, 0.2f, 0.2f, 0.5f);
 
-    private List<GameObject> subPanelList;
-    private List<List<GameObject>> textboxList;
+    private Dictionary<int, int> indexToSubpanelIndexDict;
+    private List<Transform> subPanelTransforms;
+    private List<List<Transform>> textboxTransforms;
+    private List<Transform> outcomeTransforms;
 
 
     void Start()
     {
-        subPanelList = new List<GameObject>();
-        textboxList = new List<List<GameObject>>();
-
+        indexToSubpanelIndexDict = new Dictionary<int, int>();
+        subPanelTransforms = new List<Transform>();
+        textboxTransforms = new List<List<Transform>>();
+        outcomeTransforms = new List<Transform>();
 
         LoadStories();
+        Rearrange();
     }
 
     void LoadStories()
     {
-        List<KeyValuePair<int, int>> storyList = new List<KeyValuePair<int, int>>(StaticDataManager.SelectedStoryOutcomes);
-        storyList.Sort((p, q) => p.Key.CompareTo(q.Key));
 
         // change dimensions of panels dynamically based on number of stories
 
-        float size = (5 - storyList.Count) * 100f;
+        float size = (5 - StaticDataManager.SelectedStoryIndices.Length) * 100f;
 
         leftPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(size, 0);
         rightPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(size, 0);
@@ -63,16 +66,18 @@ public class StoryRearrangementManager : MonoBehaviour
 
         int subPanelIndex = 0;
 
-        foreach (KeyValuePair<int, int> keyValuePair in storyList)
+        foreach (int index in StaticDataManager.SelectedStoryIndices)
         {
-            StoryData storyData = StaticDataManager.StoryDatas[keyValuePair.Key];
+            indexToSubpanelIndexDict.Add(index, subPanelIndex);
+
+            StoryData storyData = StaticDataManager.StoryDatas[index];
 
             // instantiate side background panel
             if (subPanelIndex == 0)
             {
                 leftPanel.GetComponent<Image>().color = storyData.GetColor();
             }
-            if (subPanelIndex == storyList.Count - 1)
+            if (subPanelIndex == StaticDataManager.SelectedStoryIndices.Length - 1)
             {
                 rightPanel.GetComponent<Image>().color = storyData.GetColor();
             }
@@ -86,7 +91,7 @@ public class StoryRearrangementManager : MonoBehaviour
             GameObject tempSubPanelGameObject = Instantiate(subPanelPrefab);
             tempSubPanelGameObject.transform.SetParent(rearrangementPanel.transform, false);
             tempSubPanelGameObject.GetComponent<SubpanelController>().storyIndex = storyData.index;
-            subPanelList.Add(tempSubPanelGameObject);
+            subPanelTransforms.Add(tempSubPanelGameObject.transform);
 
             // initialise all texboxes
 
@@ -113,16 +118,16 @@ public class StoryRearrangementManager : MonoBehaviour
                 }
             }
 
-            string outcomeText = string.Join("\n", storyData.outcomes[keyValuePair.Value].outcomeText).Replace("-", "\n").Replace("\\", "");
+            string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[index].selectedOutcome].outcomeText).Replace("-", "\n").Replace("\\", "");
 
-            textboxList.Add(new List<GameObject>());
+            textboxTransforms.Add(new List<Transform>());
 
             foreach (TextBlock textBlock in textBlocks)
             {
                 GameObject tempTextboxGameObject = Instantiate(textboxPrefab);
                 tempTextboxGameObject.GetComponent<TextboxController>().boxFlag = textBlock.flag;
                 tempTextboxGameObject.GetComponent<TextboxController>().storyIndex = storyData.index;
-                tempTextboxGameObject.transform.SetParent(tempSubPanelGameObject.transform, false);
+                tempTextboxGameObject.transform.SetParent(tempTextboxParentTransform, false);
 
                 Transform backgroundTransform = tempTextboxGameObject.transform.GetChild(1);
                 Image banner = backgroundTransform.GetChild(0).GetComponent<Image>();
@@ -191,13 +196,13 @@ public class StoryRearrangementManager : MonoBehaviour
                     tempTypeImageGameObject.transform.SetParent(typeTransform, false);
                 }
 
-                textboxList[subPanelIndex].Add(tempTextboxGameObject);
+                textboxTransforms[textboxTransforms.Count - 1].Add(tempTextboxGameObject.transform);
             }
 
             GameObject outcomeTextboxGameObject = Instantiate(textboxPrefab);
             outcomeTextboxGameObject.GetComponent<TextboxController>().boxFlag = StoryData.LineFlags.None;
             outcomeTextboxGameObject.GetComponent<TextboxController>().storyIndex = storyData.index;
-            outcomeTextboxGameObject.transform.SetParent(tempSubPanelGameObject.transform, false);
+            outcomeTextboxGameObject.transform.SetParent(tempTextboxParentTransform, false);
 
             // set text
             outcomeTextboxGameObject.transform.GetChild(2).GetComponent<TMPro.TMP_Text>().text = outcomeText;
@@ -205,7 +210,7 @@ public class StoryRearrangementManager : MonoBehaviour
             // textbox color
             outcomeTextboxGameObject.transform.GetChild(1).GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.25f, 0.25f);
 
-            textboxList[subPanelIndex].Add(outcomeTextboxGameObject);
+            outcomeTransforms.Add(outcomeTextboxGameObject.transform);
 
             subPanelIndex++;
         }
@@ -240,9 +245,44 @@ public class StoryRearrangementManager : MonoBehaviour
         TextboxController.BackButtonTransform = GameObject.Find("Back").transform;
     }
 
+    void Rearrange()
+    {
+        RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
+
+        foreach (List<Transform> subPanelTextboxTransforms in textboxTransforms)
+        {
+            foreach (Transform textboxTransform in subPanelTextboxTransforms)
+            {
+                textboxTransform.SetParent(tempTextboxParentTransform, false);
+            }
+        }
+
+        foreach (Transform outcomeTransform in outcomeTransforms)
+        {
+            outcomeTransform.SetParent(tempTextboxParentTransform, false);
+        }
+
+        foreach (KeyValuePair<int, List<RearrangementData.TextboxIndices>> kvp in rearrangementData.rearrangementTextboxIndices)
+        {
+            foreach (RearrangementData.TextboxIndices textboxIndices in kvp.Value)
+            {
+                textboxTransforms[indexToSubpanelIndexDict[textboxIndices.storyIndex]]
+                [textboxIndices.textboxIndex].SetParent(subPanelTransforms[indexToSubpanelIndexDict[kvp.Key]], false);
+            }
+        }
+
+        for (int i = 0; i < outcomeTransforms.Count; i++)
+        {
+            outcomeTransforms[i].SetParent(subPanelTransforms[i], false);
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
+    }
+
+
     public void BackToMainGame()
     {
-        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryOutcomes[StaticDataManager.SeletedStoryOutcomeIndex].Key]);
+        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);
         SceneManager.LoadSceneAsync("MainGameScene");
     }
 }

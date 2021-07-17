@@ -30,7 +30,7 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
     public static float RightMargin;
 
     private static Coroutine ScrollCoroutine;
-    private static float ScrollSpeed = 0.01f;
+    private static float ScrollSpeed = 0.0075f;
 
     private static Color ValidColor = new Color(0f, 0f, 0f, 0.5f);
     private static Color InvalidColor = new Color(1f, 0f, 0f, 0.75f);
@@ -229,7 +229,7 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
                     if (isSwitched)
                     {
                         Transform oldSwitchedTransform = lastSubpanelTransform.GetChild(lastPlaceholderIndex);
-                        if (lastPlaceholderIndex < currentPlaceholderIndex) currentPlaceholderIndex++;
+                        if (lastPlaceholderIndex < currentPlaceholderIndex) currentPlaceholderIndex--;
                         oldSwitchedTransform.SetParent(lastSwitchingSubpanelTransform);
                         oldSwitchedTransform.SetSiblingIndex(lastSwitchingIndex);
                     }

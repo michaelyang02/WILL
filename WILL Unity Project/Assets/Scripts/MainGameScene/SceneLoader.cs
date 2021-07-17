@@ -7,7 +7,7 @@ public class SceneLoader : MonoBehaviour
 {
     public static void LoadStoryAnimatedTextScene()
     {
-        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryOutcomes[0].Key].isRead == true)
+        if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]].isRead == true)
         {
             SceneManager.LoadSceneAsync("StoryTextScene");
         }
