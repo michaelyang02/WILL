@@ -10,6 +10,7 @@ public class StoryRearrangementManager : MonoBehaviour
     public GameObject leftPanel;
     public GameObject rightPanel;
     public GameObject middlePanel;
+    public GameObject foregroundPanel;
 
     public GameObject rearrangementPanel;
 
@@ -18,6 +19,7 @@ public class StoryRearrangementManager : MonoBehaviour
     public GameObject subPanelPrefab;
     public GameObject textboxPrefab;
     public GameObject backgroundPanelPrefab;
+    public GameObject foregroundPanelPrefab;
     public GameObject typeImagePrefab;
 
     public Sprite switchingSprite;
@@ -28,18 +30,20 @@ public class StoryRearrangementManager : MonoBehaviour
 
     private Color typeColor = new Color(1f, 0.2f, 0.2f, 0.5f);
 
-    private Dictionary<int, int> indexToSubpanelIndexDict;
-    private List<Transform> subPanelTransforms;
-    private List<List<Transform>> textboxTransforms;
-    private List<Transform> outcomeTransforms;
+    private Dictionary<int, Transform> subpanelTransforms;
+    private Dictionary<int, Transform> foregroundSubpanelTransforms;
+    private Dictionary<RearrangementData.TextboxIndices, Transform> textboxTransforms;
+    private Dictionary<Transform, RearrangementData.TextboxIndices> textboxTextboxIndices;
+    private Dictionary<int, Transform> outcomeTransforms;
 
 
     void Start()
     {
-        indexToSubpanelIndexDict = new Dictionary<int, int>();
-        subPanelTransforms = new List<Transform>();
-        textboxTransforms = new List<List<Transform>>();
-        outcomeTransforms = new List<Transform>();
+        subpanelTransforms = new Dictionary<int, Transform>();
+        foregroundSubpanelTransforms = new Dictionary<int, Transform>();
+        textboxTransforms = new Dictionary<RearrangementData.TextboxIndices, Transform>();
+        textboxTextboxIndices = new Dictionary<Transform, RearrangementData.TextboxIndices>();
+        outcomeTransforms = new Dictionary<int, Transform>();
 
         LoadStories();
         Rearrange();
@@ -68,7 +72,6 @@ public class StoryRearrangementManager : MonoBehaviour
 
         foreach (int index in StaticDataManager.SelectedStoryIndices)
         {
-            indexToSubpanelIndexDict.Add(index, subPanelIndex);
 
             StoryData storyData = StaticDataManager.StoryDatas[index];
 
@@ -91,7 +94,13 @@ public class StoryRearrangementManager : MonoBehaviour
             GameObject tempSubPanelGameObject = Instantiate(subPanelPrefab);
             tempSubPanelGameObject.transform.SetParent(rearrangementPanel.transform, false);
             tempSubPanelGameObject.GetComponent<SubpanelController>().storyIndex = storyData.index;
-            subPanelTransforms.Add(tempSubPanelGameObject.transform);
+            subpanelTransforms.Add(index, tempSubPanelGameObject.transform);
+
+            // instantiate foreground panel
+            GameObject tempForegroundPanel = Instantiate(foregroundPanelPrefab);
+            tempForegroundPanel.transform.SetParent(foregroundPanel.transform, false);
+            tempForegroundPanel.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + StaticDataManager.StoryPlayerDatas[index].selectedOutcome.ToString();
+            foregroundSubpanelTransforms.Add(index, tempForegroundPanel.transform);
 
             // initialise all texboxes
 
@@ -120,7 +129,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
             string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[index].selectedOutcome].outcomeText).Replace("-", "\n").Replace("\\", "");
 
-            textboxTransforms.Add(new List<Transform>());
+            int textBlockIndex = 0; 
 
             foreach (TextBlock textBlock in textBlocks)
             {
@@ -196,7 +205,8 @@ public class StoryRearrangementManager : MonoBehaviour
                     tempTypeImageGameObject.transform.SetParent(typeTransform, false);
                 }
 
-                textboxTransforms[textboxTransforms.Count - 1].Add(tempTextboxGameObject.transform);
+                textboxTransforms.Add(new RearrangementData.TextboxIndices() {storyIndex = index, textboxIndex = textBlockIndex}, tempTextboxGameObject.transform);
+                textBlockIndex++;
             }
 
             GameObject outcomeTextboxGameObject = Instantiate(textboxPrefab);
@@ -210,7 +220,7 @@ public class StoryRearrangementManager : MonoBehaviour
             // textbox color
             outcomeTextboxGameObject.transform.GetChild(1).GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.25f, 0.25f);
 
-            outcomeTransforms.Add(outcomeTextboxGameObject.transform);
+            outcomeTransforms.Add(index, outcomeTextboxGameObject.transform);
 
             subPanelIndex++;
         }
@@ -236,6 +246,8 @@ public class StoryRearrangementManager : MonoBehaviour
             TextboxController.SubPanelBoundaries.Add(child, new Vector2(leftBoundary, rightBoundary));
         }
 
+        textboxTextboxIndices = textboxTransforms.ToDictionary(i => i.Value, i => i.Key);
+
         // initialise textbox controller static data
 
         TextboxController.CanvasTransform = GameObject.Find("Canvas").transform;
@@ -249,15 +261,12 @@ public class StoryRearrangementManager : MonoBehaviour
     {
         RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
 
-        foreach (List<Transform> subPanelTextboxTransforms in textboxTransforms)
+        foreach (Transform textboxTransform in textboxTransforms.Values)
         {
-            foreach (Transform textboxTransform in subPanelTextboxTransforms)
-            {
-                textboxTransform.SetParent(tempTextboxParentTransform, false);
-            }
+            textboxTransform.SetParent(tempTextboxParentTransform);
         }
 
-        foreach (Transform outcomeTransform in outcomeTransforms)
+        foreach (Transform outcomeTransform in outcomeTransforms.Values)
         {
             outcomeTransform.SetParent(tempTextboxParentTransform, false);
         }
@@ -266,17 +275,54 @@ public class StoryRearrangementManager : MonoBehaviour
         {
             foreach (RearrangementData.TextboxIndices textboxIndices in kvp.Value)
             {
-                textboxTransforms[indexToSubpanelIndexDict[textboxIndices.storyIndex]]
-                [textboxIndices.textboxIndex].SetParent(subPanelTransforms[indexToSubpanelIndexDict[kvp.Key]], false);
+                textboxTransforms[textboxIndices].SetParent(subpanelTransforms[kvp.Key], false);
             }
         }
 
-        for (int i = 0; i < outcomeTransforms.Count; i++)
+        foreach (KeyValuePair<int, Transform> kvp1 in outcomeTransforms)
         {
-            outcomeTransforms[i].SetParent(subPanelTransforms[i], false);
+            kvp1.Value.SetParent(subpanelTransforms[kvp1.Key], false);
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
+    }
+
+    public void DetermineOutcome()
+    {
+        StaticDataManager.AnimatedOutcomes.Clear();
+
+        foreach (int index in StaticDataManager.SelectedStoryIndices)
+        {
+            List<RearrangementData.TextboxIndices> textboxIndices = new List<RearrangementData.TextboxIndices>();
+
+            foreach (Transform transform in subpanelTransforms[index])
+            {
+                if (textboxTextboxIndices.ContainsKey(transform))
+                {
+                    textboxIndices.Add(textboxTextboxIndices[transform]);
+                }
+            }
+
+            StoryData storyData = StaticDataManager.StoryDatas[index];
+
+            foreach (StoryData.Outcome outcome in storyData.outcomes)
+            {
+                if (outcome.outcomeConditions.IsConditionMet(textboxIndices))
+                { // arrangement meets this outcome's conditions (first)
+                    if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[outcome.outcomeIndex])
+                    {
+                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.Outcome.OutcomeIndices {storyIndex = index, outcomeIndex = outcome.outcomeIndex});
+                        StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[outcome.outcomeIndex] = true;
+                    }
+                    foregroundSubpanelTransforms[index].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + outcome.outcomeIndex.ToString();
+                    break;
+                }
+            }           
+            if (StaticDataManager.AnimatedOutcomes.Any())
+            {
+                SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
+            }
+        }
     }
 
 

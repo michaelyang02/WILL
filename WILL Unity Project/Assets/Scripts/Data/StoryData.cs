@@ -39,10 +39,10 @@ public class StoryData
     [System.Serializable]
     public enum Color
     {
-        ChinaPink =         0xdb6b98,
-        LavenderFlorel =    0xa77acd,
+        ChinaPink = 0xdb6b98,
+        LavenderFlorel = 0xa77acd,
         VioletBlueCrayola = 0x6a70c8,
-        FieryRose =         0xeb5c6c,
+        FieryRose = 0xeb5c6c,
     }
 
     [System.Serializable]
@@ -56,36 +56,33 @@ public class StoryData
     [System.Serializable]
     public enum LineFlags : byte
     {
-        None =          0,
-        Draggable =     1,
-        Switching =     1 << 1,
-        Unswappable =   1 << 2,
-        Numbered1 =     1 << 3,
-        Numbered2 =     1 << 4,
-        Numbered3 =     1 << 5
+        None = 0,
+        Draggable = 1,
+        Switching = 1 << 1,
+        Unswappable = 1 << 2,
+        Numbered1 = 1 << 3,
+        Numbered2 = 1 << 4,
+        Numbered3 = 1 << 5
     }
-
-    [System.Serializable]
-    public enum TextboxColor
-    {
-        
-    }
-
 
     [System.Serializable]
     public class Outcome
     {
-        //public List<TextBlock> requiredArrangement { get; }
-        public List<string> outcomeText { get; }
-        public List<int> enabledStories { get; }
-        public List<int> disabledStories { get; }
-
-        public Outcome(List<string> outcomeText, List<int> enabledStories, List<int> disabledStories)
+        public struct OutcomeIndices : IEquatable<OutcomeIndices>
         {
-            this.outcomeText = outcomeText;
-            this.enabledStories = enabledStories;
-            this.disabledStories = disabledStories;
+            public int storyIndex { get; set; }
+            public int outcomeIndex { get; set; }
+
+            public bool Equals(OutcomeIndices other)
+            {
+                return other.storyIndex == storyIndex && other.outcomeIndex == outcomeIndex;
+            }
         }
+        public int outcomeIndex { get; set; }
+        public List<OutcomeCondition> outcomeConditions { get; set; }
+        public List<string> outcomeText { get; set; }
+        public List<int> enabledStories { get; set; }
+        public List<OutcomeIndices> enabledOutcomes { get; set; }
     }
 
     [System.Serializable]
@@ -100,39 +97,18 @@ public class StoryData
 
         public EffectType effectType { get; }
         public int effectNumber { get; }
-
-        public Effect(Effect.EffectType effectType, int effectNumber)
-        {
-            this.effectType = effectType;
-            this.effectNumber = effectNumber;
-        }
     }
 
-    public int index { get; }
-    public List<int> childrenIndices { get; }
+    public int index { get; set; }
+    public List<int> childrenIndices { get; set; }
 
-    public Character character { get; }
+    public Character character { get; set; }
 
-    public string title { get; }
-    public List<string> initialText { get; }
-    public List<Outcome> outcomes { get; }
-    public Dictionary<int, LineFlags> lastLineTypes { get; }
-    public Dictionary<int, Effect> lineEffects { get; }
-
-    public StoryData(int index, List<int> childrenIndices,
-    Character character, string title,
-    List<string> initialText, List<Outcome> outcomes,
-    Dictionary<int, LineFlags> lastLineTypes, Dictionary<int, Effect> lineEffects)
-    {
-        this.index = index;
-        this.childrenIndices = childrenIndices;
-        this.character = character;
-        this.title = title;
-        this.initialText = initialText;
-        this.outcomes = outcomes;
-        this.lastLineTypes = lastLineTypes;
-        this.lineEffects = lineEffects;
-    }
+    public string title { get; set; }
+    public List<string> initialText { get; set; }
+    public OutcomeList outcomes { get; set; }
+    public Dictionary<int, LineFlags> lastLineTypes { get; set; }
+    public Dictionary<int, Effect> lineEffects { get; set; }
 
     // TODO: generate enable/disable list
 
@@ -143,48 +119,38 @@ public class StoryData
     }
 
 
-    /*
-    public static List<string> initial = new List<string>()
+    [System.Serializable]
+    public class OutcomeList : List<Outcome>
     {
-        "Overcast.\\ Just as gloomy as alway.\n THe light struggled to glow at all",
-        "Just as I put down the two grocery bags, he came.\\ And he is now gone.",
-        "Just as <color=#78bfe3><u>Stirling</u></color> did."
-    };
-
-    public static List<Outcome> outcomes1 = new List<Outcome>()
-    {
-        new Outcome(initial, new List<int>() {1, 2}, null)
-    };
-
-    public static Dictionary<int, ParagraphFlags> last = new Dictionary<int, ParagraphFlags>()
-    {
-        {-1, ParagraphFlags.Draggable | ParagraphFlags.Unswappable},
-        {-2, ParagraphFlags.Exposition}
-    };
-
-    public static StoryData story = new StoryData(0, new List<int>() {1, 2}, null, Character.MrsJacobs, "Time is right", initial, outcomes1, last);
-    */
+        new public Outcome this[int index]
+        {
+            get
+            {
+                foreach (Outcome outcome in this)
+                {
+                    if (outcome.outcomeIndex == index)
+                    {
+                        return outcome;
+                    }
+                }
+                return null;
+            }
+        }
+    }
 }
 
 [System.Serializable]
-public class StoryDataList
+public class StoryDataList : List<StoryData>
 {
-    public List<StoryData> storyDatas { get; set; }
-
-    public StoryDataList()
-    {
-        storyDatas = new List<StoryData>();
-    }
-
-    public StoryData this[int storyIndex]
+    new public StoryData this[int index]
     {
         get
         {
-            foreach (StoryData story in storyDatas)
+            foreach (StoryData storyData in this)
             {
-                if (story.index == storyIndex)
+                if (storyData.index == index)
                 {
-                    return story;
+                    return storyData;
                 }
             }
             return null;

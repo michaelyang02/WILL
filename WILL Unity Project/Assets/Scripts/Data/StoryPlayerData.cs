@@ -3,42 +3,26 @@ using System.Collections.Generic;
 [System.Serializable]
 public class StoryPlayerData
 {
-    public int index { get; }
+    public int index { get; set;}
     public bool isDiscovered { get; set; }
     public bool isRead { get; set; }
     public List<bool> outcomeDiscovered { get; set; }
     public int selectedOutcome { get; set; }
 
-    public StoryPlayerData(int index, bool isDiscovered, bool isRead, List<bool> outcomeDiscovered, int selectedOutcome = 0)
-    {
-        this.index = index;
-        this.isDiscovered = isDiscovered;
-        this.isRead = isRead;
-        this.outcomeDiscovered = outcomeDiscovered;
-        this.selectedOutcome = selectedOutcome;
-    }
-
 }
 
 [System.Serializable]
-public class StoryPlayerDataList
+public class StoryPlayerDataList : List<StoryPlayerData>
 {
-    public List<StoryPlayerData> storyPlayerDatas { get; set; }
-
-    public StoryPlayerDataList()
-    {
-        storyPlayerDatas = new List<StoryPlayerData>();
-    }
-
-    public StoryPlayerData this[int storyIndex]
+    new public StoryPlayerData this[int index]
     {
         get
         {
-            foreach (StoryPlayerData story in storyPlayerDatas)
+            foreach (StoryPlayerData storyPlayerData in this)
             {
-                if (story.index == storyIndex)
+                if (storyPlayerData.index == index)
                 {
-                    return story;
+                    return storyPlayerData;
                 }
             }
             return null;

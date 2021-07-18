@@ -25,7 +25,6 @@ public class MainGameManager : MonoBehaviour
         SquareController.spriteSize = gridSize * Vector2.one;
 
         InitialiseSquare(0, Vector2Int.zero);
-        InitialiseSquare(1, Vector2Int.one * 2);
         isLoaded = true;    
     }
 

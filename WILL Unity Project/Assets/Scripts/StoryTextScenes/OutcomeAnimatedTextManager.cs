@@ -6,65 +6,63 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-public class StoryAnimatedTextManager : MonoBehaviour
+public class OutcomeAnimatedTextManager : MonoBehaviour
 {
-
-    public TMPro.TMP_Text titleText;
-    public TMPro.TMP_Text storyText;
+    public TMPro.TMP_Text outcomeText;
 
     public GameObject autoText;
-    public static float writingTime = 0.025f; // 0.025f
 
-    private StoryData storyData;
-    private bool isAUTO;
+    private static bool IsAUTO;
 
     void Start()
     {
-        storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
-        List<string> outcomeText = storyData.outcomes[StaticDataManager.StoryPlayerDatas[storyData.index].selectedOutcome].outcomeText;
-
-        titleText.text = storyData.title;
-        storyText.text = "";
-
+        StoryData.Outcome.OutcomeIndices outcomeIndices = StaticDataManager.AnimatedOutcomes[0];
+        StoryData storyData = StaticDataManager.StoryDatas[outcomeIndices.storyIndex];
+        outcomeText.text = "";
         GetComponent<Image>().color = storyData.GetColor();
-
-        StartCoroutine(AnimateWriting(storyData.initialText, outcomeText));
+        StartCoroutine(AnimateWriting(storyData.outcomes[outcomeIndices.outcomeIndex].outcomeText));
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            if (!isAUTO)
+            if (!IsAUTO)
             {
-                isAUTO = true;
+                IsAUTO = true;
                 autoText.SetActive(true);
             }
             else
             {
-                isAUTO = false;
+                IsAUTO = false;
                 autoText.SetActive(false);
             }
         }
 
-        if (Input.GetMouseButtonDown(0) && isAUTO)
+        if (Input.GetMouseButtonDown(0) && IsAUTO)
         {
-            isAUTO = false;
+            IsAUTO = false;
             autoText.SetActive(false);
         }
     }
 
-    IEnumerator AnimateWriting(params List<string>[] writingList)
+    IEnumerator AnimateWriting(List<string> outcomeText)
     {
         //string signature = ("\n\n<align=\"right\">" + storyData.GetCharacter());
 
-        foreach (List<string> writing in writingList)
+        yield return StartCoroutine(NarrateLines(outcomeText));
+        StaticDataManager.AnimatedOutcomes.RemoveAt(0);
+
+        if (StaticDataManager.AnimatedOutcomes.Count == 0)
         {
-            yield return StartCoroutine(NarrateLines(writing));
+            IsAUTO = false;
+            SceneManager.UnloadSceneAsync("OutcomeAnimatedTextScene");
         }
-        
-        yield return StartCoroutine(WaitProceeding(20f, false));
-        SceneManager.LoadSceneAsync("StoryTextScene");
+        else
+        {
+            SceneManager.UnloadSceneAsync("OutcomeAnimatedTextScene");
+            SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
+        }
         yield break;
     }
 
@@ -76,7 +74,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
         {
             if (l == lines.Count || lines[l] == "-")
             {
-                storyText.text = "";
+                outcomeText.text = "";
 
                 // construct string of this page
 
@@ -97,7 +95,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
                         isInTag = true;
                     }
 
-                    storyText.text = cleanedString.Substring(0, cleanedIndex + 1) + "</u></color><color=#00000000>"
+                    outcomeText.text = cleanedString.Substring(0, cleanedIndex + 1) + "</u></color><color=#00000000>"
                      + Regex.Replace(cleanedString.Substring(cleanedIndex + 1), @"<color=[^>]*>|</color>", "") + "</color>";
 
                     if (!isInTag)
@@ -113,7 +111,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
                         cleanedIndex++;
                     }
                 }
-                    yield return StartCoroutine(WaitProceeding(20f, true));
+                yield return StartCoroutine(WaitProceeding(20f, true));
             }
         }
         yield break;
@@ -156,25 +154,19 @@ public class StoryAnimatedTextManager : MonoBehaviour
         if (isInputRequired)
         {
             // wait for set of time before proceeding with AUTO or with click
-            while (!Input.GetMouseButtonDown(0) && !isAUTO)
+            while (!Input.GetMouseButtonDown(0) && !IsAUTO)
             {
                 yield return null;
             }
-            if (isAUTO)
+            if (IsAUTO)
             {
-                yield return new WaitForSeconds(waitingFactor * writingTime);
+                yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.writingTime);
             }
         }
         else
         {
-            yield return new WaitForSeconds(waitingFactor * writingTime);
+            yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.writingTime);
         }
         yield break;
-    }
-
-    public void BackToMainGame()
-    {
-        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[storyData.index]);
-        SceneManager.LoadSceneAsync("MainGameScene");
     }
 }

@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/StoryRearrangementScene.unity
     guid: 8b7af69ea2a41654e927c917f4393deb
+  - enabled: 1
+    path: Assets/Scenes/OutcomeAnimatedTextScene.unity
+    guid: a0014002f7392de48b493c6d8ebcef48
   m_configObjects: {}
