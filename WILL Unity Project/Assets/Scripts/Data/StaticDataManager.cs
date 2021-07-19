@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class StaticDataManager : MonoBehaviour
@@ -11,9 +12,10 @@ public class StaticDataManager : MonoBehaviour
         if (!isLoaded)
         {
             // load
-            StoryDatas = SerializationManager.LoadJSON<StoryDataList>("storyData");
-            StoryPlayerDatas = SerializationManager.LoadJSON<StoryPlayerDataList>("storyPlayerData");
-            RearrangementDatas = SerializationManager.LoadJSON<RearrangementDataList>("rearrangementData");
+            StoryDatas = SerializationManager.LoadJSON<List<StoryData>>("storyData");
+            StoryPlayerDatas = SerializationManager.LoadJSON<List<StoryPlayerData>>("storyPlayerData");
+            RearrangementDatas = SerializationManager.LoadJSON<List<RearrangementData>>("rearrangementData").
+            SelectMany(rd => rd.indices, (rd, rdIndex) => new {rdIndex, rd}).ToDictionary(rd => rd.rdIndex, rd => rd.rd);
 
             /*
             StoryDatas.Add(new StoryData
@@ -80,7 +82,7 @@ public class StaticDataManager : MonoBehaviour
             // save
             SerializationManager.SaveJSON("storyData", StoryDatas);
             SerializationManager.SaveJSON("storyPlayerData", StoryPlayerDatas);
-            SerializationManager.SaveJSON("rearrangementData", RearrangementDatas);
+            SerializationManager.SaveJSON("rearrangementData", RearrangementDatas.Values.Distinct().OrderBy(d => d.indices[0]).ToList());
 
             // backup
             //SerializationManager.Backup("storyData", storyDatas.storyDatas);
@@ -89,15 +91,15 @@ public class StaticDataManager : MonoBehaviour
     }
 
     // for main game
-    public static StoryDataList StoryDatas = new StoryDataList();
-    public static StoryPlayerDataList StoryPlayerDatas = new StoryPlayerDataList();
-    public static RearrangementDataList RearrangementDatas = new RearrangementDataList();
+    public static List<StoryData> StoryDatas = new List<StoryData>();
+    public static List<StoryPlayerData> StoryPlayerDatas = new List<StoryPlayerData>();
+    public static Dictionary<int, RearrangementData> RearrangementDatas = new Dictionary<int, RearrangementData>();
 
     // for animated and rearrangement
     public static int[] SelectedStoryIndices;
     public static int SelectedIndex;
 
-    public static Dictionary<int, Vector2> StoryPosition = new Dictionary<int, Vector2>();
+    public static List<Vector2> StoryPosition = new List<Vector2>();
 
     public static List<StoryData.Outcome.OutcomeIndices> AnimatedOutcomes = new List<StoryData.Outcome.OutcomeIndices>();
 }

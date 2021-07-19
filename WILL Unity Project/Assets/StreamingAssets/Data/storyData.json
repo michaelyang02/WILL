@@ -16,11 +16,20 @@
     ],
     "outcomes": [
       {
-        "outcomeIndex": 0,
         "outcomeConditions": [
           "seq 0.1, 0.2, 0.3"
         ],
         "outcomeText": [
+          "Fortunately, it was not bruised.",
+          "I picked it up and put it into the grocery bag again and fetched the key from my handbag.\n",
+          "As I turned the key, an immense heat and light blasted through and engulfed me.",
+          "I felt I was disintegrated and then everything turned dark.",
+          "-",
+          "The next time I opened my eyes, I was stuffed with tubes and wires, covered by white bandages in a hospital.\n",
+          "Although I lost my left arm and leg, the doctor said it was a miracle that I survived and woke up after three months in a coma.\n",
+          "The police soon came over and took some notes as I responded by winking.",
+          "They informed me that the explosion was most likely caused by a gas leak and triggered by my entry.",
+          "-",
           "My apartment was destroyed.\\ The fire spread to neighbouring apartments on my floor, causing major damages too.\n",
           "With everything gone and massive bills to pay, I have no way out but to end it all.\n",
           "God, only if I didn’t open the door..."
@@ -29,7 +38,6 @@
         "enabledOutcomes": []
       },
       {
-        "outcomeIndex": 1,
         "outcomeConditions": [
           "seq 0.2, 0.3, 0.1"
         ],

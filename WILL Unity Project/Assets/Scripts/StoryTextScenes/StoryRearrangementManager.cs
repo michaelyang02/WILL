@@ -127,9 +127,9 @@ public class StoryRearrangementManager : MonoBehaviour
                 }
             }
 
-            string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[index].selectedOutcome].outcomeText).Replace("-", "\n").Replace("\\", "");
+            string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[index].selectedOutcome].outcomeText).Replace("-", "").Replace("\\", "");
 
-            int textBlockIndex = 0; 
+            int textBlockIndex = 0;
 
             foreach (TextBlock textBlock in textBlocks)
             {
@@ -140,7 +140,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
                 Transform backgroundTransform = tempTextboxGameObject.transform.GetChild(1);
                 Image banner = backgroundTransform.GetChild(0).GetComponent<Image>();
-                Transform typeTransform = backgroundTransform .GetChild(1);
+                Transform typeTransform = backgroundTransform.GetChild(1);
                 TMPro.TMP_Text text = tempTextboxGameObject.transform.GetChild(2).GetComponent<TMPro.TMP_Text>();
 
                 // set text
@@ -205,7 +205,7 @@ public class StoryRearrangementManager : MonoBehaviour
                     tempTypeImageGameObject.transform.SetParent(typeTransform, false);
                 }
 
-                textboxTransforms.Add(new RearrangementData.TextboxIndices() {storyIndex = index, textboxIndex = textBlockIndex}, tempTextboxGameObject.transform);
+                textboxTransforms.Add(new RearrangementData.TextboxIndices() { storyIndex = index, textboxIndex = textBlockIndex }, tempTextboxGameObject.transform);
                 textBlockIndex++;
             }
 
@@ -289,6 +289,8 @@ public class StoryRearrangementManager : MonoBehaviour
 
     public void DetermineOutcome()
     {
+        RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
+
         StaticDataManager.AnimatedOutcomes.Clear();
 
         foreach (int index in StaticDataManager.SelectedStoryIndices)
@@ -303,25 +305,35 @@ public class StoryRearrangementManager : MonoBehaviour
                 }
             }
 
+            rearrangementData.rearrangementTextboxIndices[index] = textboxIndices;
+
             StoryData storyData = StaticDataManager.StoryDatas[index];
 
-            foreach (StoryData.Outcome outcome in storyData.outcomes)
+            for (int i = 0; i < storyData.outcomes.Count; i++)
             {
-                if (outcome.outcomeConditions.IsConditionMet(textboxIndices))
+                if (storyData.outcomes[i].outcomeConditions.IsConditionMet(textboxIndices))
                 { // arrangement meets this outcome's conditions (first)
-                    if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[outcome.outcomeIndex])
+                    if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i])
                     {
-                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.Outcome.OutcomeIndices {storyIndex = index, outcomeIndex = outcome.outcomeIndex});
-                        StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[outcome.outcomeIndex] = true;
+                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.Outcome.OutcomeIndices { storyIndex = index, outcomeIndex = i });
+                        StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i] = true;
                     }
-                    foregroundSubpanelTransforms[index].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + outcome.outcomeIndex.ToString();
+                    outcomeTransforms[index].GetChild(2).GetComponent<TMPro.TMP_Text>().text = string.Join("\n", storyData.outcomes[i].outcomeText).Replace("-", "").Replace("\\", "");
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(outcomeTransforms[index].GetComponent<RectTransform>());
+
+                    foregroundSubpanelTransforms[index].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + i.ToString();
+                    StaticDataManager.StoryPlayerDatas[index].selectedOutcome = i;
+                    
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(subpanelTransforms[index].GetComponent<RectTransform>());
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
                     break;
                 }
-            }           
-            if (StaticDataManager.AnimatedOutcomes.Any())
-            {
-                SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
             }
+        }
+
+        if (StaticDataManager.AnimatedOutcomes.Any())
+        {
+            SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
         }
     }
 

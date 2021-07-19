@@ -20,22 +20,3 @@ public class RearrangementData
 
     public Dictionary<int, List<TextboxIndices>> rearrangementTextboxIndices { get; set; }
 }
-
-[System.Serializable]
-public class RearrangementDataList : List<RearrangementData>
-{
-    new public RearrangementData this[int index]
-    {
-        get
-        {
-            foreach (RearrangementData rearrangementData in this)
-            {
-                if (rearrangementData.indices.Contains(index))
-                {
-                    return rearrangementData;
-                }
-            }
-            return null;
-        }
-    }
-}

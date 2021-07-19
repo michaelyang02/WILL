@@ -157,8 +157,7 @@ public class SquareController : MonoBehaviour
         descriptionButton = Instantiate(descriptionButtonPrefab);
         descriptionButton.transform.SetParent(canvas.transform, false);
         descriptionButton.transform.SetSiblingIndex(0);
-        descriptionButton.GetComponent<Button>().image.color = spriteRenderer.color;
-        descriptionButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = storyData.title;
+        descriptionButton.GetComponent<DescriptionButtonController>().storyIndex = storyIndex;
     }
 
     void ButtonFollow()

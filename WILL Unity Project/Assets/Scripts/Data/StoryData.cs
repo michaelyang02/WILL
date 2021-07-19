@@ -78,7 +78,6 @@ public class StoryData
                 return other.storyIndex == storyIndex && other.outcomeIndex == outcomeIndex;
             }
         }
-        public int outcomeIndex { get; set; }
         public List<OutcomeCondition> outcomeConditions { get; set; }
         public List<string> outcomeText { get; set; }
         public List<int> enabledStories { get; set; }
@@ -106,7 +105,7 @@ public class StoryData
 
     public string title { get; set; }
     public List<string> initialText { get; set; }
-    public OutcomeList outcomes { get; set; }
+    public List<Outcome> outcomes { get; set; }
     public Dictionary<int, LineFlags> lastLineTypes { get; set; }
     public Dictionary<int, Effect> lineEffects { get; set; }
 
@@ -116,44 +115,5 @@ public class StoryData
     {
         int color = (int)character;
         return new Color32((byte)((color >> 16) & 255), (byte)((color >> 8) & 255), (byte)(color & 255), 255);
-    }
-
-
-    [System.Serializable]
-    public class OutcomeList : List<Outcome>
-    {
-        new public Outcome this[int index]
-        {
-            get
-            {
-                foreach (Outcome outcome in this)
-                {
-                    if (outcome.outcomeIndex == index)
-                    {
-                        return outcome;
-                    }
-                }
-                return null;
-            }
-        }
-    }
-}
-
-[System.Serializable]
-public class StoryDataList : List<StoryData>
-{
-    new public StoryData this[int index]
-    {
-        get
-        {
-            foreach (StoryData storyData in this)
-            {
-                if (storyData.index == index)
-                {
-                    return storyData;
-                }
-            }
-            return null;
-        }
     }
 }

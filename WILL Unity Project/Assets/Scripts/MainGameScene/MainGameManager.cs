@@ -35,7 +35,7 @@ public class MainGameManager : MonoBehaviour
         
         if (!isLoaded)
         {
-            StaticDataManager.StoryPosition.Add(storyIndex, (Vector2) position * gridSize);
+            StaticDataManager.StoryPosition.Add(Vector2.zero);
         }
     }
 
