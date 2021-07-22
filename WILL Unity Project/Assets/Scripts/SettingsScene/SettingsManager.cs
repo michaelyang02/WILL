@@ -57,9 +57,9 @@ public class SettingsManager : MonoBehaviour
         audioMixer.GetFloat("volume", out volume);
         volumeSlider.value = volume;
 
-        writingSpeedSlider.value = 1f / StoryAnimatedTextManager.writingTime;
-        writingSpeedSlider.maxValue = 100f;
-        writingSpeedSlider.minValue = 40f;
+        writingSpeedSlider.value = 1f / StoryAnimatedTextManager.WritingTime;
+        writingSpeedSlider.maxValue = 60f;
+        writingSpeedSlider.minValue = 20f;
 
 
         // TODO: save these settings in file and load them next time
@@ -93,6 +93,7 @@ public class SettingsManager : MonoBehaviour
 
     public void SetWritingSpeed(float writingSpeed)
     {
-        StoryAnimatedTextManager.writingTime = 1f / writingSpeed;
+        StoryAnimatedTextManager.WritingTime = 1f / writingSpeed;
+        Debug.Log(StoryAnimatedTextManager.WritingTime);
     }
 }

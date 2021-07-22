@@ -104,12 +104,12 @@ public class SerializationManager
         JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
         jsonSerializerSettings.Formatting = Formatting.Indented;
         jsonSerializerSettings.Converters.Add(new Vector2IntJsonConverter());
-        jsonSerializerSettings.Converters.Add(new EnumConverter<StoryData.Character>());
-        jsonSerializerSettings.Converters.Add(new EnumConverter<StoryData.LineFlags>());
-        jsonSerializerSettings.Converters.Add(new EnumConverter<StoryData.Effect.EffectType>());
+        jsonSerializerSettings.Converters.Add(new EnumConverter());
         jsonSerializerSettings.Converters.Add(new StringJsonConverter());
         jsonSerializerSettings.Converters.Add(new TextboxIndicesJsonConverter());
         jsonSerializerSettings.Converters.Add(new OutcomeConditionJsonConverter());
+        jsonSerializerSettings.Converters.Add(new OutcomeIndicesJsonConverter());
+        jsonSerializerSettings.Converters.Add(new UnindentedJsonConverter());
         return jsonSerializerSettings;
     }
 

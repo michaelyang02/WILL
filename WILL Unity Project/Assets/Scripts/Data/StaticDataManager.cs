@@ -12,11 +12,14 @@ public class StaticDataManager : MonoBehaviour
         if (!isLoaded)
         {
             // load
-            StoryDatas = SerializationManager.LoadJSON<List<StoryData>>("storyData");
+            List<TextData> textDatas = SerializationManager.LoadJSON<List<TextData>>("textData");
+            List<IndexData> indexDatas = SerializationManager.LoadJSON<List<IndexData>>("indexData");
+            StoryDatas = textDatas.Zip(indexDatas, (t, i) => StoryData.FromDatas(t, i)).ToList();
+
             StoryPlayerDatas = SerializationManager.LoadJSON<List<StoryPlayerData>>("storyPlayerData");
             RearrangementDatas = SerializationManager.LoadJSON<List<RearrangementData>>("rearrangementData").
             SelectMany(rd => rd.indices, (rd, rdIndex) => new {rdIndex, rd}).ToDictionary(rd => rd.rdIndex, rd => rd.rd);
-
+            StoryPosition.Add(Vector2Int.zero);
             /*
             StoryDatas.Add(new StoryData
             {
@@ -80,7 +83,8 @@ public class StaticDataManager : MonoBehaviour
             */
 
             // save
-            SerializationManager.SaveJSON("storyData", StoryDatas);
+            SerializationManager.SaveJSON("textData", StoryDatas.Select(s => s.ToTextData()).ToList());
+            SerializationManager.SaveJSON("indexData", StoryDatas.Select(s => s.ToIndexData()).ToList());
             SerializationManager.SaveJSON("storyPlayerData", StoryPlayerDatas);
             SerializationManager.SaveJSON("rearrangementData", RearrangementDatas.Values.Distinct().OrderBy(d => d.indices[0]).ToList());
 
@@ -97,9 +101,9 @@ public class StaticDataManager : MonoBehaviour
 
     // for animated and rearrangement
     public static int[] SelectedStoryIndices;
-    public static int SelectedIndex;
+    public static int SelectedIndex; // index of the array not of the story!
 
-    public static List<Vector2> StoryPosition = new List<Vector2>();
+    public static List<Vector2Int> StoryPosition = new List<Vector2Int>();
 
-    public static List<StoryData.Outcome.OutcomeIndices> AnimatedOutcomes = new List<StoryData.Outcome.OutcomeIndices>();
+    public static List<StoryData.OutcomeIndices> AnimatedOutcomes = new List<StoryData.OutcomeIndices>();
 }

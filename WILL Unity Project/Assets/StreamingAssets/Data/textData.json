@@ -1,11 +1,7 @@
 [
   {
-    "index": 0,
-    "parentIndex": -1,
     "character": "MrsJacobs",
     "title": "Time is right",
-    "requiredDiscoveredOutcomes": [],
-    "requiredEnableddOutcomes": [],
     "initialText": [
       "Overcast.\\ Just as gloomy as always.",
       "The bulb in the stairwell struggled to give the last bit of dim, incandescent light.\n",
@@ -35,9 +31,8 @@
       "-1": "Draggable"
     },
     "lineEffects": {},
-    "outcomes": [
+    "outcomeTexts": [
       {
-        "requiredOutcomes": [],
         "outcomeText": [
           "Fortunately, it was not bruised.",
           "I picked it up and put it into the grocery bag again and fetched the key from my handbag.\n",
@@ -57,7 +52,6 @@
         "lineEffects": {}
       },
       {
-        "requiredOutcomes": [],
         "outcomeText": [
           "I panted excessively as I finally found some cover inside the janitor’s closet two floors below.",
           "The deafening gunshots were still ringing in my ear.\\ That was too close.\n",

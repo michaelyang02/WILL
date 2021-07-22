@@ -13,7 +13,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
     public TMPro.TMP_Text storyText;
 
     public GameObject autoText;
-    public static float writingTime = 0.025f; // 0.025f
+    public static float WritingTime = 0.025f; // 0.025f
 
     private StoryData storyData;
     private bool isAUTO;
@@ -26,7 +26,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
         titleText.text = storyData.title;
         storyText.text = "";
 
-        GetComponent<Image>().color = storyData.GetColor();
+        GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
 
         StartCoroutine(AnimateWriting(storyData.initialText, outcomeText));
     }
@@ -62,7 +62,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
         {
             yield return StartCoroutine(NarrateLines(writing));
         }
-        
+
         yield return StartCoroutine(WaitProceeding(20f, false));
         SceneManager.LoadSceneAsync("StoryTextScene");
         yield break;
@@ -162,12 +162,12 @@ public class StoryAnimatedTextManager : MonoBehaviour
             }
             if (isAUTO)
             {
-                yield return new WaitForSeconds(waitingFactor * writingTime);
+                yield return new WaitForSeconds(waitingFactor * WritingTime);
             }
         }
         else
         {
-            yield return new WaitForSeconds(waitingFactor * writingTime);
+            yield return new WaitForSeconds(waitingFactor * WritingTime);
         }
         yield break;
     }

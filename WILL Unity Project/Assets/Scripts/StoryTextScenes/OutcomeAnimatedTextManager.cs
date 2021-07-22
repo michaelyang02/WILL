@@ -16,10 +16,10 @@ public class OutcomeAnimatedTextManager : MonoBehaviour
 
     void Start()
     {
-        StoryData.Outcome.OutcomeIndices outcomeIndices = StaticDataManager.AnimatedOutcomes[0];
+        StoryData.OutcomeIndices outcomeIndices = StaticDataManager.AnimatedOutcomes[0];
         StoryData storyData = StaticDataManager.StoryDatas[outcomeIndices.storyIndex];
         outcomeText.text = "";
-        GetComponent<Image>().color = storyData.GetColor();
+        GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
         StartCoroutine(AnimateWriting(storyData.outcomes[outcomeIndices.outcomeIndex].outcomeText));
     }
 
@@ -160,12 +160,12 @@ public class OutcomeAnimatedTextManager : MonoBehaviour
             }
             if (IsAUTO)
             {
-                yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.writingTime);
+                yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.WritingTime);
             }
         }
         else
         {
-            yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.writingTime);
+            yield return new WaitForSeconds(waitingFactor * StoryAnimatedTextManager.WritingTime);
         }
         yield break;
     }

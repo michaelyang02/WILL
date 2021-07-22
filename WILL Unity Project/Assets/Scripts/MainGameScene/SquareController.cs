@@ -7,36 +7,22 @@ using System;
 
 public class SquareController : MonoBehaviour
 {
-    #region sprite
     private SpriteRenderer spriteRenderer;
-    public Sprite squareBorderSprite;
-    public Sprite squareFilledSprite;
 
-    private Color squareColor;
-    private Color squareGreyedColor;
-    private static float GreyedOutOpacity = 0.2f;
-    #endregion
-
-    #region button
     public GameObject descriptionButtonPrefab;
     private GameObject descriptionButton;
 
     private Vector3 YExtent = Vector3.zero;
     private static float YDirectionButtonFactor = 1.1f;
-    #endregion
-
-    public static Vector2 spriteSize;
 
     private bool isClicked = false;
     private GameObject canvas;
 
+    public int storyIndex { get; set; }
+
     private static float CameraZoomLevelThreshold = 1f;
     private static MainGameManager mainGameManager;
     private static CameraManager cameraManager;
-
-    public int storyIndex { get; set; }
-    private StoryData storyData;
-    private StoryPlayerData storyPlayerData;
 
     static SquareController()
     {
@@ -51,27 +37,16 @@ public class SquareController : MonoBehaviour
 
     void Start()
     {
-        storyData = StaticDataManager.StoryDatas[storyIndex];
-        storyPlayerData = StaticDataManager.StoryPlayerDatas[storyIndex];
-
         canvas = GameObject.Find("Canvas");
 
         mainGameManager = MainGameManager.Instance;
         cameraManager = CameraManager.Instance;
 
-        squareColor = storyData.GetColor();
-        squareGreyedColor = squareColor;
-        squareGreyedColor.a = GreyedOutOpacity;
-
-        spriteRenderer.sprite = squareBorderSprite;
-        spriteRenderer.color = squareColor;
-
-        spriteRenderer.size = spriteSize;
-        GetComponent<BoxCollider2D>().size = spriteSize;
+        spriteRenderer.sprite = MainGameManager.Instance.squareDeselectedSprite;
+        spriteRenderer.size = MainGameManager.Instance.gridSize * Vector2.one;
+        GetComponent<BoxCollider2D>().size = MainGameManager.Instance.gridSize * Vector2.one;
 
         YExtent.y = spriteRenderer.bounds.extents.y;
-
-        mainGameManager.onAnyClicked += OnMouseClick;
     }
 
     void Update()
@@ -81,8 +56,7 @@ public class SquareController : MonoBehaviour
 
     void OnDestroy()
     {
-        // remove the event listeners
-        mainGameManager.onAnyClicked -= OnMouseClick;
+        // remove the event listener
         cameraManager.onZoomChange -= OnZoomChange;
     }
 
@@ -91,19 +65,14 @@ public class SquareController : MonoBehaviour
         // notify controller this square has been pressed
         if (!EventSystem.current.IsPointerOverGameObject())
         {
-            mainGameManager.SquareClicked(gameObject);
+            MainGameManager.Instance.SquareClick(storyIndex);
         }
     }
 
-    void Select()
+    public void Select()
     {
-        // add selected storyData to StaticDataManager
-        StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas[storyIndex].indices;
-
-        StaticDataManager.SelectedIndex = Array.IndexOf(StaticDataManager.SelectedStoryIndices, storyIndex);
-
         // change sprite and show the button
-        spriteRenderer.sprite = squareFilledSprite;
+        spriteRenderer.sprite = MainGameManager.Instance.squareSelectedSprite;
         isClicked = true;
         DisplayButton();
 
@@ -113,42 +82,13 @@ public class SquareController : MonoBehaviour
         cameraManager.FocusCamera(transform.position);
     }
 
-    void Deselect()
+    public void Deselect()
     {
         // change back and unsubscribe
-        spriteRenderer.sprite = squareBorderSprite;
+        spriteRenderer.sprite = MainGameManager.Instance.squareDeselectedSprite;
         isClicked = false;
         cameraManager.onZoomChange -= OnZoomChange;
         Destroy(descriptionButton);
-    }
-
-    void OnMouseClick(GameObject clickedGameObject)
-    {
-        // if the clicked one is the background, deselected it (but normal color)
-        // if the clicked one is this one, change it to selected
-        // if the clicked one is another square, deselect it
-
-        if (clickedGameObject == null)
-        {
-            spriteRenderer.color = squareColor;
-            if (isClicked)
-            {
-                Deselect();
-            }
-        }
-        else if (clickedGameObject == gameObject)
-        {
-            spriteRenderer.color = squareColor;
-            if (!isClicked)
-            {
-                Select();
-            }
-        }
-        else
-        {
-            spriteRenderer.color = squareGreyedColor;
-            Deselect();
-        }
     }
 
     void DisplayButton()
@@ -183,5 +123,10 @@ public class SquareController : MonoBehaviour
         {
             descriptionButton.SetActive(true);
         }
+    }
+
+    public void SetColor(Color color)
+    {
+        spriteRenderer.color = color;
     }
 }

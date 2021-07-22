@@ -2,11 +2,17 @@
   {
     "index": 0,
     "isDiscovered": true,
+    "isEnabled": true,
     "isRead": true,
     "outcomeDiscovered": [
       true,
       false,
       false
+    ],
+    "outcomeEnabled": [
+      true,
+      true,
+      true
     ],
     "selectedOutcome": 0
   }

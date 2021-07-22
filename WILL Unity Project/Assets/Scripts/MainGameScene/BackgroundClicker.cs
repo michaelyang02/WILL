@@ -47,7 +47,7 @@ public class BackgroundClicker : MonoBehaviour
     {
         if (!EventSystem.current.IsPointerOverGameObject())
         {
-            mainGameController.SquareClicked(null);
+            MainGameManager.Instance.SquareClick(-1);
 
             dragOrigin = orthographicCamera.ScreenToWorldPoint(Input.mousePosition);
 

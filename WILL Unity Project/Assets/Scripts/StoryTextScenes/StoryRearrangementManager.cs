@@ -78,17 +78,17 @@ public class StoryRearrangementManager : MonoBehaviour
             // instantiate side background panel
             if (subPanelIndex == 0)
             {
-                leftPanel.GetComponent<Image>().color = storyData.GetColor();
+                leftPanel.GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
             }
             if (subPanelIndex == StaticDataManager.SelectedStoryIndices.Length - 1)
             {
-                rightPanel.GetComponent<Image>().color = storyData.GetColor();
+                rightPanel.GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
             }
 
             // instantiate background panel
             GameObject tempBackgroundPanel = Instantiate(backgroundPanelPrefab);
             tempBackgroundPanel.transform.SetParent(middlePanel.transform, false);
-            tempBackgroundPanel.GetComponent<Image>().color = storyData.GetColor();
+            tempBackgroundPanel.GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
 
             // instantiate subpanel
             GameObject tempSubPanelGameObject = Instantiate(subPanelPrefab);
@@ -152,7 +152,7 @@ public class StoryRearrangementManager : MonoBehaviour
                     text.color = Color.black;
 
                     // banner image
-                    banner.color = storyData.GetColor();
+                    banner.color = ColorManager.GetColor(storyData.character);
                     banner.gameObject.SetActive(true);
 
                     // textbox color
@@ -168,7 +168,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
                 if ((textBlock.flag & StoryData.LineFlags.Unswappable) == StoryData.LineFlags.Unswappable)
                 {
-                    Color tempColor = storyData.GetColor();
+                    Color tempColor = ColorManager.GetColor(storyData.character);
                     tempColor.a = 0.5f;
 
                     GameObject tempTypeImageGameObject = Instantiate(typeImagePrefab);
@@ -308,14 +308,14 @@ public class StoryRearrangementManager : MonoBehaviour
             rearrangementData.rearrangementTextboxIndices[index] = textboxIndices;
 
             StoryData storyData = StaticDataManager.StoryDatas[index];
-
+            /*
             for (int i = 0; i < storyData.outcomes.Count; i++)
             {
                 if (storyData.outcomes[i].outcomeConditions.IsConditionMet(textboxIndices))
                 { // arrangement meets this outcome's conditions (first)
                     if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i])
                     {
-                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.Outcome.OutcomeIndices { storyIndex = index, outcomeIndex = i });
+                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.OutcomeIndices { storyIndex = index, outcomeIndex = i });
                         StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i] = true;
                     }
                     outcomeTransforms[index].GetChild(2).GetComponent<TMPro.TMP_Text>().text = string.Join("\n", storyData.outcomes[i].outcomeText).Replace("-", "").Replace("\\", "");
@@ -329,6 +329,7 @@ public class StoryRearrangementManager : MonoBehaviour
                     break;
                 }
             }
+            */
         }
 
         if (StaticDataManager.AnimatedOutcomes.Any())

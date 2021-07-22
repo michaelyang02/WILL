@@ -22,7 +22,7 @@ public class StoryTextManager : MonoBehaviour
         StoryData storyData = StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
         StoryPlayerData storyPlayerData = StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]];
 
-        GetComponent<Image>().color = storyData.GetColor();
+        GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
 
         // add story text
         string initialText = string.Join("\n", storyData.initialText).Replace("-", "\n").Replace("\\", "");

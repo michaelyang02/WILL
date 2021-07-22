@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using System;
 
 [System.Serializable]
 public class StoryData
 {
-
     public string GetCharacter()
     {
         switch (character)
@@ -21,35 +20,16 @@ public class StoryData
     }
 
     [System.Serializable]
-    public enum HighlightColor
-    {
-        Blue = 0x78bfe3,
-        Green = 0x00a6a6,
-        Yellow = 0xefca08,
-        Orange = 0xf49f0a,
-        Red = 0xd63230
-    }
-
-    [System.Serializable]
     public enum HighlightType
     {
-        Information = HighlightColor.Blue
-    }
-
-    [System.Serializable]
-    public enum Color
-    {
-        ChinaPink = 0xdb6b98,
-        LavenderFlorel = 0xa77acd,
-        VioletBlueCrayola = 0x6a70c8,
-        FieryRose = 0xeb5c6c,
+        Information = ColorManager.HighlightColor.Blue
     }
 
     [System.Serializable]
     public enum Character
     {
-        MrsJacobs = Color.LavenderFlorel,
-        DetectiveJohnson = Color.VioletBlueCrayola
+        MrsJacobs = ColorManager.CharacterColor.LavenderFlorel,
+        DetectiveJohnson = ColorManager.CharacterColor.VioletBlueCrayola
     }
 
     [Flags]
@@ -66,22 +46,25 @@ public class StoryData
     }
 
     [System.Serializable]
+    public struct OutcomeIndices : IEquatable<OutcomeIndices>
+    {
+        public int storyIndex { get; set; }
+        public int outcomeIndex { get; set; }
+
+        public bool Equals(OutcomeIndices other)
+        {
+            return other.storyIndex == storyIndex && other.outcomeIndex == outcomeIndex;
+        }
+    }
+
+    [System.Serializable]
     public class Outcome
     {
-        public struct OutcomeIndices : IEquatable<OutcomeIndices>
-        {
-            public int storyIndex { get; set; }
-            public int outcomeIndex { get; set; }
+        public List<OutcomeIndices> requiredOutcomes { get; set; }
 
-            public bool Equals(OutcomeIndices other)
-            {
-                return other.storyIndex == storyIndex && other.outcomeIndex == outcomeIndex;
-            }
-        }
-        public List<OutcomeCondition> outcomeConditions { get; set; }
         public List<string> outcomeText { get; set; }
-        public List<int> enabledStories { get; set; }
-        public List<OutcomeIndices> enabledOutcomes { get; set; }
+        public Dictionary<int, StoryData.LineFlags> firstLineTypes { get; set; }
+        public Dictionary<int, StoryData.Effect> lineEffects { get; set; }
     }
 
     [System.Serializable]
@@ -99,21 +82,64 @@ public class StoryData
     }
 
     public int index { get; set; }
-    public List<int> childrenIndices { get; set; }
+    // -1 for root node
+    public int parentIndex { get; set; }
 
     public Character character { get; set; }
-
     public string title { get; set; }
+
+    // empty means none required
+    public List<OutcomeIndices> requiredDiscoveredOutcomes { get; set; }
+    public List<OutcomeIndices> requiredEnableddOutcomes { get; set; }
+
     public List<string> initialText { get; set; }
-    public List<Outcome> outcomes { get; set; }
     public Dictionary<int, LineFlags> lastLineTypes { get; set; }
     public Dictionary<int, Effect> lineEffects { get; set; }
+    public List<Outcome> outcomes { get; set; }
 
-    // TODO: generate enable/disable list
-
-    public UnityEngine.Color GetColor()
+    public TextData ToTextData()
     {
-        int color = (int)character;
-        return new Color32((byte)((color >> 16) & 255), (byte)((color >> 8) & 255), (byte)(color & 255), 255);
+        return new TextData { character = character, title = title, initialText = initialText, lastLineTypes = lastLineTypes, lineEffects = lineEffects, outcomeTexts = outcomes.Select(o => new TextData.OutcomeText() { outcomeText = o.outcomeText, firstLineTypes = o.firstLineTypes, lineEffects = o.lineEffects }).ToList() };
     }
+
+    public IndexData ToIndexData()
+    {
+        return new IndexData() { index = index, parentIndex = parentIndex, requiredDiscoveredOutcomes = requiredDiscoveredOutcomes, requiredEnableddOutcomes = requiredEnableddOutcomes, requiredOutcomeIndices = outcomes.Select(o => o.requiredOutcomes).ToList() };
+    }
+
+    public static StoryData FromDatas(TextData textData, IndexData indexData)
+    {
+        return new StoryData()
+        {
+            index = indexData.index, parentIndex = indexData.parentIndex, character = textData.character, title = textData.title, requiredDiscoveredOutcomes = indexData.requiredDiscoveredOutcomes, requiredEnableddOutcomes = indexData.requiredEnableddOutcomes, initialText = textData.initialText, lastLineTypes = textData.lastLineTypes, lineEffects = textData.lineEffects, outcomes = textData.outcomeTexts.Zip(indexData.requiredOutcomeIndices, (t, i) => new Outcome {requiredOutcomes = i, outcomeText = t.outcomeText, firstLineTypes = t.firstLineTypes, lineEffects = t.lineEffects}).ToList()
+        };
+    }
+}
+
+[System.Serializable]
+public class TextData
+{
+    [System.Serializable]
+    public class OutcomeText
+    {
+        public List<string> outcomeText { get; set; }
+        public Dictionary<int, StoryData.LineFlags> firstLineTypes { get; set; }
+        public Dictionary<int, StoryData.Effect> lineEffects { get; set; }
+    }
+    public StoryData.Character character { get; set; }
+    public string title { get; set; }
+    public List<string> initialText { get; set; }
+    public Dictionary<int, StoryData.LineFlags> lastLineTypes { get; set; }
+    public Dictionary<int, StoryData.Effect> lineEffects { get; set; }
+    public List<OutcomeText> outcomeTexts { get; set; }
+}
+
+[System.Serializable]
+public class IndexData
+{
+    public int index { get; set; }
+    public int parentIndex { get; set; }
+    public List<StoryData.OutcomeIndices> requiredDiscoveredOutcomes { get; set; }
+    public List<StoryData.OutcomeIndices> requiredEnableddOutcomes { get; set; }
+    public List<List<StoryData.OutcomeIndices>> requiredOutcomeIndices { get; set; }
 }
