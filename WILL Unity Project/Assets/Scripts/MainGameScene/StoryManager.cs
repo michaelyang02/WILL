@@ -86,9 +86,9 @@ public static class StoryManager
                 
                 StaticDataManager.StoryPlayerDatas[index].isEnabled = isEnabled;
 
-                int[] indices = StaticDataManager.RearrangementDatas[index].indices;
+                int[] indices = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index)).Keys.ToArray();
                 if (indices.Length > 1 && !companionList.Contains(indices))
-                { // with companion // TODO: change this to a different dataset later
+                { // with companion
                     companionList.Add(indices);
                 }
                 
@@ -106,7 +106,7 @@ public static class StoryManager
                         StaticDataManager.StoryPlayerDatas[index].outcomeEnabled[outcomeIndex] = false;
                     }
                     else
-                    { // test all required outcomes enabled, true either no required or all enabled and selected
+                    { // test all required outcomes enabled, true either not required or all enabled and selected
                         StaticDataManager.StoryPlayerDatas[index].outcomeEnabled[outcomeIndex] = 
                         (!storyData.outcomes[outcomeIndex].requiredOutcomes.Any() || 
                         storyData.outcomes[outcomeIndex].requiredOutcomes.All(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome == oi.outcomeIndex && StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex]));

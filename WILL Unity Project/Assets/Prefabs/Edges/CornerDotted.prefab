@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1807580256021325020}
   - component: {fileID: 7345594439617210916}
   m_Layer: 0
-  m_Name: RightUpCorner
+  m_Name: CornerDotted
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +72,7 @@ SpriteRenderer:
   m_SortingLayerID: -2142921041
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7138835716425584882, guid: ba0acbf629fd81742b6359a34ba673bc, type: 3}
+  m_Sprite: {fileID: 2528381028685867382, guid: ba0acbf629fd81742b6359a34ba673bc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

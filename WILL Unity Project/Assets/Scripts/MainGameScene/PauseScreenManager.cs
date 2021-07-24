@@ -49,4 +49,18 @@ public class PauseScreenManager : MonoBehaviour
         Resume();
         // TODO: Add confirmation window
     }
+
+    public void Save()
+    {
+        Resume();
+        SaveLoadManager.isSaving = true;
+        SceneManager.LoadSceneAsync("SaveLoadScene", LoadSceneMode.Additive);
+    }
+
+    public void Load()
+    {
+        Resume();
+        SaveLoadManager.isSaving = false;
+        SceneManager.LoadSceneAsync("SaveLoadScene", LoadSceneMode.Additive);
+    }
 }

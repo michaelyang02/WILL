@@ -25,7 +25,7 @@ public class StoryTextManager : MonoBehaviour
         GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
 
         // add story text
-        string initialText = string.Join("\n", storyData.initialText).Replace("-", "\n").Replace("\\", "");
+        string initialText = string.Join("\n", StoryAnimatedTextManager.GetRearrangedInitialText(storyData)).Replace("-", "\n").Replace("\\", "");
         string outcomeText = string.Join("\n", storyData.outcomes[StaticDataManager.StoryPlayerDatas[storyData.index].
         selectedOutcome].outcomeText).Replace("-", "\n").Replace("\\", "");
 

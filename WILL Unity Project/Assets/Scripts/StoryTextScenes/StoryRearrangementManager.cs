@@ -32,8 +32,8 @@ public class StoryRearrangementManager : MonoBehaviour
 
     private Dictionary<int, Transform> subpanelTransforms;
     private Dictionary<int, Transform> foregroundSubpanelTransforms;
-    private Dictionary<RearrangementData.TextboxIndices, Transform> textboxTransforms;
-    private Dictionary<Transform, RearrangementData.TextboxIndices> textboxTextboxIndices;
+    private Dictionary<RearrangementPlayerData.TextboxIndices, Transform> textboxTransforms;
+    private Dictionary<Transform, RearrangementPlayerData.TextboxIndices> textboxTextboxIndices;
     private Dictionary<int, Transform> outcomeTransforms;
 
 
@@ -41,8 +41,8 @@ public class StoryRearrangementManager : MonoBehaviour
     {
         subpanelTransforms = new Dictionary<int, Transform>();
         foregroundSubpanelTransforms = new Dictionary<int, Transform>();
-        textboxTransforms = new Dictionary<RearrangementData.TextboxIndices, Transform>();
-        textboxTextboxIndices = new Dictionary<Transform, RearrangementData.TextboxIndices>();
+        textboxTransforms = new Dictionary<RearrangementPlayerData.TextboxIndices, Transform>();
+        textboxTextboxIndices = new Dictionary<Transform, RearrangementPlayerData.TextboxIndices>();
         outcomeTransforms = new Dictionary<int, Transform>();
 
         LoadStories();
@@ -105,8 +105,7 @@ public class StoryRearrangementManager : MonoBehaviour
             // initialise all texboxes
 
             // sort the lines
-            List<KeyValuePair<int, StoryData.LineFlags>> lastLineTypes = storyData.lastLineTypes.ToList();
-            lastLineTypes.Sort((p, q) => p.Key.CompareTo(q.Key));
+            List<KeyValuePair<int, StoryData.LineFlags>> lastLineTypes = storyData.lastLineTypes.OrderBy(k => k.Key).ToList();
 
             List<TextBlock> textBlocks = new List<TextBlock>();
 
@@ -205,7 +204,7 @@ public class StoryRearrangementManager : MonoBehaviour
                     tempTypeImageGameObject.transform.SetParent(typeTransform, false);
                 }
 
-                textboxTransforms.Add(new RearrangementData.TextboxIndices() { storyIndex = index, textboxIndex = textBlockIndex }, tempTextboxGameObject.transform);
+                textboxTransforms.Add(new RearrangementPlayerData.TextboxIndices() { storyIndex = index, textboxIndex = textBlockIndex }, tempTextboxGameObject.transform);
                 textBlockIndex++;
             }
 
@@ -259,7 +258,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
     void Rearrange()
     {
-        RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
+        RearrangementPlayerData rearrangementData = StaticDataManager.RearrangementPlayerDatas[StaticDataManager.SelectedStoryIndices[0]];
 
         foreach (Transform textboxTransform in textboxTransforms.Values)
         {
@@ -271,9 +270,9 @@ public class StoryRearrangementManager : MonoBehaviour
             outcomeTransform.SetParent(tempTextboxParentTransform, false);
         }
 
-        foreach (KeyValuePair<int, List<RearrangementData.TextboxIndices>> kvp in rearrangementData.rearrangementTextboxIndices)
+        foreach (KeyValuePair<int, List<RearrangementPlayerData.TextboxIndices>> kvp in rearrangementData.rearrangementTextboxIndices)
         {
-            foreach (RearrangementData.TextboxIndices textboxIndices in kvp.Value)
+            foreach (RearrangementPlayerData.TextboxIndices textboxIndices in kvp.Value)
             {
                 textboxTransforms[textboxIndices].SetParent(subpanelTransforms[kvp.Key], false);
             }
@@ -289,13 +288,13 @@ public class StoryRearrangementManager : MonoBehaviour
 
     public void DetermineOutcome()
     {
-        RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
+        RearrangementPlayerData rearrangementPlayerData = StaticDataManager.RearrangementPlayerDatas[StaticDataManager.SelectedStoryIndices[0]];
 
         StaticDataManager.AnimatedOutcomes.Clear();
 
         foreach (int index in StaticDataManager.SelectedStoryIndices)
         {
-            List<RearrangementData.TextboxIndices> textboxIndices = new List<RearrangementData.TextboxIndices>();
+            List<RearrangementPlayerData.TextboxIndices> textboxIndices = new List<RearrangementPlayerData.TextboxIndices>();
 
             foreach (Transform transform in subpanelTransforms[index])
             {
@@ -305,13 +304,14 @@ public class StoryRearrangementManager : MonoBehaviour
                 }
             }
 
-            rearrangementData.rearrangementTextboxIndices[index] = textboxIndices;
+            rearrangementPlayerData.rearrangementTextboxIndices[index] = textboxIndices;
 
             StoryData storyData = StaticDataManager.StoryDatas[index];
-            /*
+            RearrangementData rearrangementData = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index));
+
             for (int i = 0; i < storyData.outcomes.Count; i++)
             {
-                if (storyData.outcomes[i].outcomeConditions.IsConditionMet(textboxIndices))
+                if (rearrangementData[index][i].IsConditionMet(textboxIndices))
                 { // arrangement meets this outcome's conditions (first)
                     if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i])
                     {
@@ -329,12 +329,11 @@ public class StoryRearrangementManager : MonoBehaviour
                     break;
                 }
             }
-            */
         }
 
         if (StaticDataManager.AnimatedOutcomes.Any())
-        {
-            SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
+        { // without async to avoid the slight pause before loading thus revealing outcome
+            SceneManager.LoadScene("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
         }
     }
 

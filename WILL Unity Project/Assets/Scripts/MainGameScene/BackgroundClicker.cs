@@ -16,6 +16,7 @@ public class BackgroundClicker : MonoBehaviour
     private Camera orthographicCamera;
 
     private Vector3 dragOrigin;
+    private float dragDistance;
 
     private Queue<float> lastDragSpeeds;
 
@@ -47,9 +48,8 @@ public class BackgroundClicker : MonoBehaviour
     {
         if (!EventSystem.current.IsPointerOverGameObject())
         {
-            MainGameManager.Instance.SquareClick(-1);
-
             dragOrigin = orthographicCamera.ScreenToWorldPoint(Input.mousePosition);
+            dragDistance = 0f;
 
             if (addSpeed != null)
             {
@@ -64,6 +64,7 @@ public class BackgroundClicker : MonoBehaviour
         if (!EventSystem.current.IsPointerOverGameObject())
         {
             cameraController.SetNewPosition(dragOrigin - orthographicCamera.ScreenToWorldPoint(Input.mousePosition));
+            if (dragDistance <= 10f) dragDistance += Vector3.Distance(dragOrigin, orthographicCamera.ScreenToWorldPoint(Input.mousePosition));
         }
     }
 
@@ -71,13 +72,21 @@ public class BackgroundClicker : MonoBehaviour
     {
         if (!EventSystem.current.IsPointerOverGameObject())
         {
+            if (dragDistance < 10f)
+            {
+                MainGameManager.Instance.SquareClick(-1);
+            }
+
             if (recordSpeed != null)
             {
                 StopCoroutine(recordSpeed);
             }
             addSpeed = StartCoroutine(AddInertialDragVelocity(Vector3.Normalize(dragOrigin - orthographicCamera.ScreenToWorldPoint(Input.mousePosition))));
+            
         }
     }
+
+
 
     IEnumerator RecordLastDragSpeed()
     {

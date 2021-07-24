@@ -1,5 +1,6 @@
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 
 public class Vector2IntJsonConverter : JsonConverter
@@ -7,11 +8,7 @@ public class Vector2IntJsonConverter : JsonConverter
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        Vector2Int v2 = (Vector2Int)value;
-        writer.WriteStartArray();
-        writer.WriteValue(v2.x);
-        writer.WriteValue(v2.y);
-        writer.WriteEnd();
+        writer.WriteRawValue("[" + ((Vector2Int)value).x + "," + ((Vector2Int)value).y + "]");
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)

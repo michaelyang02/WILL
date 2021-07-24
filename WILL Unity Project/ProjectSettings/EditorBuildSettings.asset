@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OutcomeAnimatedTextScene.unity
     guid: a0014002f7392de48b493c6d8ebcef48
+  - enabled: 1
+    path: Assets/Scenes/SaveLoadScene.unity
+    guid: b8f5dab339f2da2418ec1d42d5cf479d
   m_configObjects: {}

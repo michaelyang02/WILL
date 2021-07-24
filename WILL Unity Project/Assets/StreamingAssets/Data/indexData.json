@@ -8,5 +8,15 @@
       [],
       []
     ]
+  },
+  {
+    "index": 1,
+    "parentIndex": 0,
+    "requiredDiscoveredOutcomes": ["0.1"],
+    "requiredEnableddOutcomes": ["0.1"],
+    "requiredOutcomeIndices": [
+      [],
+      []
+    ]
   }
 ]

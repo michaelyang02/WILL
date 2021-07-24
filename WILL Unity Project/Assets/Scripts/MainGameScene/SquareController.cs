@@ -74,12 +74,13 @@ public class SquareController : MonoBehaviour
         // change sprite and show the button
         spriteRenderer.sprite = MainGameManager.Instance.squareSelectedSprite;
         isClicked = true;
+        cameraManager.FocusCamera(transform.position);
+
         DisplayButton();
 
         // subscribe to any change to zoom level
         OnZoomChange(cameraManager.cameraZoomLevel);
         cameraManager.onZoomChange += OnZoomChange;
-        cameraManager.FocusCamera(transform.position);
     }
 
     public void Deselect()
@@ -89,6 +90,13 @@ public class SquareController : MonoBehaviour
         isClicked = false;
         cameraManager.onZoomChange -= OnZoomChange;
         Destroy(descriptionButton);
+    }
+
+    public void GreyOut(bool state)
+    {
+        Color color = spriteRenderer.color;
+        color.a = state ? 0.5f: 1f;
+        spriteRenderer.color = color;
     }
 
     void DisplayButton()

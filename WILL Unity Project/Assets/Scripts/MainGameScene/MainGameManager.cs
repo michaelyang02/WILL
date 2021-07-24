@@ -16,6 +16,7 @@ public class MainGameManager : MonoBehaviour
 
     public static MainGameManager Instance;
 
+    private Dictionary<int, StoryData.Character> indexCharacters;
     private List<SquareController> squareControllers;
     private List<CompositeEdge> edges;
 
@@ -28,6 +29,8 @@ public class MainGameManager : MonoBehaviour
 
     public void Start()
     {
+        EdgeHelper.Instance.size = MainGameManager.Instance.gridSize * Vector2.one;
+        indexCharacters = StaticDataManager.StoryDatas.ToDictionary(d => d.index, d => d.character);
         squareControllers = new List<SquareController>();
         edges = new List<CompositeEdge>();
 
@@ -40,12 +43,25 @@ public class MainGameManager : MonoBehaviour
         if (selectedSquareIndex != -1)
         {
             squareControllers[selectedSquareIndex].Deselect();
+            // set all edges connected to previous one false
             edges.Where(e => e[selectedSquareIndex]).ToList().ForEach(e => e.SetActive(false));
+            // set all children edges to true
+            edges.Where(e => e.character != StoryData.Character.None).ToList().ForEach(e => e.SetActive(true));
+
+            // set all squares back to normal
+            squareControllers.ForEach(s => s.GreyOut(false));
         }
         if (index != -1)
         {
+            List<StoryData.Character> companionCharacters = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index)).Keys.Select(k => indexCharacters[k]).ToList();
+
             squareControllers[index].Select();
+            // set all edges unrelated to companions to false
+            edges.Where(e => e.character == StoryData.Character.None || !companionCharacters.Contains(e.character)).ToList().ForEach(e => e.SetActive(false));
+            // all edges related to this one to true
             edges.Where(e => e[index]).ToList().ForEach(e => e.SetActive(true));
+
+            squareControllers.Where(s => !companionCharacters.Contains(indexCharacters[s.storyIndex])).ToList().ForEach(s => s.GreyOut(true));
         }
         selectedSquareIndex = index;
     }
@@ -89,188 +105,33 @@ public class MainGameManager : MonoBehaviour
         {
             if (storyData.parentIndex >= 0)
             { // parent-child edge
-                edges.Add(EdgeHelper.GenerateEdge(EdgeType.Children, storyData.parentIndex, storyData.index));
+                edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Children, storyData.index, storyData.parentIndex));
             }
             if (storyData.requiredEnableddOutcomes.Any())
             { // requirement edge
                 foreach (StoryData.OutcomeIndices outcomeIndices in storyData.requiredEnableddOutcomes)
                 {
+                    if (storyData.parentIndex == outcomeIndices.storyIndex)
+                    { // skip if the required story is of the parent
+                        continue;
+                    }
+
                     if (StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].outcomeEnabled[outcomeIndices.outcomeIndex] && StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].selectedOutcome == outcomeIndices.outcomeIndex)
                     { // required outcome enabled and selected
-                        edges.Add(EdgeHelper.GenerateEdge(EdgeType.Enable, storyData.index, outcomeIndices.storyIndex));
+                        edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Enable, storyData.index, outcomeIndices.storyIndex));
                     }
                     else
                     {
-                        edges.Add(EdgeHelper.GenerateEdge(EdgeType.Disable, storyData.index, outcomeIndices.storyIndex));
+                        edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Disable, storyData.index, outcomeIndices.storyIndex));
                     }
                 }
             }
         }
 
         // companion indices
-        foreach (RearrangementData rd in StaticDataManager.RearrangementDatas.Values.Distinct())
-        {
-            edges.Add(EdgeHelper.GenerateEdge(EdgeType.Companion, rd.indices));
-        }
-    }
-}
-
-public enum EdgeType
-    {
-        Children,
-        Companion = ColorManager.EdgeColor.VividTangerine,
-        Enable = ColorManager.EdgeColor.MintGreen,
-        Disable = ColorManager.EdgeColor.Black
-    }
-
-public class EdgeHelper : MonoBehaviour
-{
-    public static CompositeEdge GenerateEdge(EdgeType edgeType, params int[] indices)
-    {
-        List<Edge> edges = new List<Edge>();
-
-        for (int i = 0; i < indices.Length - 1; i++)
-        {
-            GameObject masterGameObject = Instantiate(new GameObject());
-            Vector2Int startPosition = StaticDataManager.StoryPosition[indices[i]];
-            Vector2Int endPosition = StaticDataManager.StoryPosition[indices[i + 1]];
-
-            int horizontal = Math.Abs(endPosition.x - endPosition.x);
-            int vertical = Math.Abs(endPosition.y - startPosition.y);
-            int right = Math.Sign(endPosition.x - startPosition.x);
-            int up = Math.Sign(endPosition.y - startPosition.y);
-
-            for (int v = 1; v < vertical - 1; v++)
-            { // vertical
-                GameObject edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.Vertical),
-                MainGameManager.Instance.GetWorldPosition(startPosition + up * v * Vector2Int.up), Quaternion.identity);
-                edgeGO.transform.SetParent(masterGameObject.transform, false);
-
-                if (edgeType == EdgeType.Children)
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[indices[i]].character);
-                }
-                else
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(edgeType);
-                }
-                edgeGO.GetComponent<SpriteRenderer>().size = MainGameManager.Instance.gridSize * Vector2.one;
+        foreach (RearrangementData rd in StaticDataManager.RearrangementDatas) if (rd.Keys.Count > 1)
+            {
+                edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Companion, rd.Keys.ToArray()));
             }
-            for (int h = 1; h < horizontal; h++)
-            { // horizontal
-                GameObject edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.Horizontal), MainGameManager.Instance.GetWorldPosition(endPosition - right * h * Vector2Int.right), Quaternion.identity);
-                edgeGO.transform.SetParent(masterGameObject.transform, false);
-                if (edgeType == EdgeType.Children)
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[indices[i]].character);
-                }
-                else
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(edgeType);
-                }
-                edgeGO.GetComponent<SpriteRenderer>().size = MainGameManager.Instance.gridSize * Vector2.one;
-            }
-            if (right != 0 && up != 0)
-            { // corner
-                GameObject edgeGO = null;
-                Vector2 cornerPosition = new Vector2(startPosition.x, endPosition.y);
-
-                if (right < 0 && up < 0)
-                {
-                    edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.LeftUpCorner), cornerPosition, Quaternion.identity);
-                }
-                else if (right > 0 && up < 0)
-                {
-                    edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.RightUpCorner), cornerPosition, Quaternion.identity);
-                }
-                else if (right < 0 && up > 0)
-                {
-                    edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.LeftDownCorner), cornerPosition, Quaternion.identity);
-                }
-                else if (right > 0 && up > 0)
-                {
-                    edgeGO = Instantiate(EdgePrefab.Instance.GetEdgePrefab(EdgePrefab.EdgePrefabType.RightDownCorner), cornerPosition, Quaternion.identity);
-                }
-
-                if (edgeType == EdgeType.Children)
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[indices[i]].character);
-                }
-                else
-                {
-                    edgeGO.GetComponent<SpriteRenderer>().color = ColorManager.GetColor(edgeType);
-                }
-                edgeGO.GetComponent<SpriteRenderer>().size = MainGameManager.Instance.gridSize * Vector2.one;
-            }
-
-            Edge tempEdge = new Edge() { startIndex = indices[i], endIndex = indices[i + 1], edgeType = edgeType, edgeGameObject = masterGameObject };
-            edges.Add(tempEdge);
-        }
-
-        if (edges.Count == 1)
-        {
-            return edges[0];
-        }
-        else
-        {
-            return new EdgeCollection() { edges = edges };
-        }
-    }
-}
-
-public abstract class CompositeEdge
-{
-
-    public abstract bool this[int index] { get; }
-
-    public abstract void SetActive(bool state);
-    
-
-}
-
-public class Edge : CompositeEdge
-{
-    public int startIndex { get; set; }
-    public int endIndex { get; set; }
-    public EdgeType edgeType { get; set; }
-    public GameObject edgeGameObject { get; set; }
-
-    public override bool this[int index] => (index == startIndex || index == endIndex);
-    public override void SetActive(bool state) => edgeGameObject.SetActive(state);
-}
-
-public class EdgeCollection : CompositeEdge
-{
-    public List<Edge> edges { get; set; }
-
-    public override bool this[int index] => edges.Any(e => e[index]);
-    public override void SetActive(bool state) => edges.ForEach(e => e.edgeGameObject.SetActive(state));
-}
-
-public class EdgePrefab : MonoBehaviour
-{
-    public static EdgePrefab Instance;
-
-    public enum EdgePrefabType
-    {
-        Horizontal,
-        Vertical,
-        LeftUpCorner,
-        LeftDownCorner,
-        RightUpCorner,
-        RightDownCorner
-    }
-
-    [EnumNamedArray(typeof(EdgePrefabType))]
-    public GameObject[] edgePrefabs = new GameObject[Enum.GetNames(typeof(EdgePrefabType)).Length];
-
-    void Awake()
-    {
-        Instance = this;
-    }
-
-    public GameObject GetEdgePrefab(EdgePrefabType edgeType)
-    {
-        return edgePrefabs[(int)edgeType];
     }
 }

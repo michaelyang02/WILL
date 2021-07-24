@@ -11,7 +11,8 @@ public class MenuManager : MonoBehaviour
     }
 
     public void LoadGame() {
-        // TODO: Implement loading mechanism and loading scene
+        SaveLoadManager.isSaving = false;
+        SceneManager.LoadSceneAsync("SaveLoadScene", LoadSceneMode.Additive);
     }
 
     public void Settings() {

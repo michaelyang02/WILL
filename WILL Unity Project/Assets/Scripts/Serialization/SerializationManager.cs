@@ -107,7 +107,7 @@ public class SerializationManager
         jsonSerializerSettings.Converters.Add(new EnumConverter());
         jsonSerializerSettings.Converters.Add(new StringJsonConverter());
         jsonSerializerSettings.Converters.Add(new TextboxIndicesJsonConverter());
-        jsonSerializerSettings.Converters.Add(new OutcomeConditionJsonConverter());
+        jsonSerializerSettings.Converters.Add(new OutcomeConditionListJsonConverter());
         jsonSerializerSettings.Converters.Add(new OutcomeIndicesJsonConverter());
         jsonSerializerSettings.Converters.Add(new UnindentedJsonConverter());
         return jsonSerializerSettings;

@@ -28,6 +28,7 @@ public class StoryData
     [System.Serializable]
     public enum Character
     {
+        None,
         MrsJacobs = ColorManager.CharacterColor.LavenderFlorel,
         DetectiveJohnson = ColorManager.CharacterColor.VioletBlueCrayola
     }

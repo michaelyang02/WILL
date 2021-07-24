@@ -2,14 +2,17 @@ using Newtonsoft.Json;
 using System;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class UnindentedJsonConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
     {
         return objectType == typeof(List<int>) ||
+        objectType == typeof(int[]) ||
         objectType == typeof(List<StoryData.OutcomeIndices>) ||
-        objectType == typeof(List<RearrangementData.TextboxIndices>);
+        objectType == typeof(List<RearrangementPlayerData.TextboxIndices>) ||
+        objectType == typeof(List<List<OutcomeCondition>>);
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -19,13 +22,21 @@ public class UnindentedJsonConverter : JsonConverter
         {
             return JArray.Load(reader).ToObject<List<int>>(JsonSerializer);
         }
+        else if (objectType == typeof(int[]))
+        {
+            return JArray.Load(reader).ToObject<int[]>(JsonSerializer);
+        }
         else if (objectType == typeof(List<StoryData.OutcomeIndices>))
         {
             return JArray.Load(reader).ToObject<List<StoryData.OutcomeIndices>>(JsonSerializer);
         }
-        else if (objectType == typeof(List<RearrangementData.TextboxIndices>))
+        else if (objectType == typeof(List<RearrangementPlayerData.TextboxIndices>))
         {
-            return JArray.Load(reader).ToObject<List<RearrangementData.TextboxIndices>>(JsonSerializer);
+            return JArray.Load(reader).ToObject<List<RearrangementPlayerData.TextboxIndices>>(JsonSerializer);
+        }
+        else if (objectType == typeof(List<List<OutcomeCondition>>))
+        {
+            return JArray.Load(reader).ToObject<List<List<OutcomeCondition>>>(JsonSerializer);
         }
         return null;
     }
@@ -44,6 +55,7 @@ public class UnindentedJsonConverter : JsonConverter
         JsonSerializerSettings.Formatting = Formatting.None;
         JsonSerializerSettings.Converters.Add(new TextboxIndicesJsonConverter());
         JsonSerializerSettings.Converters.Add(new OutcomeIndicesJsonConverter());
+        JsonSerializerSettings.Converters.Add(new OutcomeConditionListJsonConverter());
         JsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
     }
 }

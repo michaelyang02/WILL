@@ -82,5 +82,36 @@
         "lineEffects": {}
       }
     ]
+  },
+  {
+    "character": "MrsJacobs",
+    "title": "Back to Where it all began",
+    "initialText": [
+      "Why? why?",
+      "It's over."
+    ],
+    "lastLineTypes": {
+      "-2": "None",
+      "-1": "Draggable"
+    },
+    "lineEffects": {},
+    "outcomeTexts": [
+      {
+        "outcomeText": [
+          "I lied... I cannot go back.",
+          "This is it."
+        ],
+        "firstLineTypes": {},
+        "lineEffects": {}
+      },
+      {
+        "outcomeText": [
+          "I lied... I cannot go back.",
+          "This is it. It's over."
+        ],
+        "firstLineTypes": {},
+        "lineEffects": {}
+      }
+    ]
   }
 ]

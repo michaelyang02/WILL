@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Linq;
 using System;
 
 public class DescriptionButtonController : MonoBehaviour
@@ -18,6 +19,10 @@ public class DescriptionButtonController : MonoBehaviour
 
     public int storyIndex { get; set; }
     public GameObject outcomeSquarePrefab;
+
+    public Sprite buttonSprite;
+    public Sprite buttonEmptySprite;
+
     public Sprite squareFilledSprite;
     public Sprite squareBorderSprite;
 
@@ -30,12 +35,12 @@ public class DescriptionButtonController : MonoBehaviour
 
         // do not need to have disabled description button
         // as it will not be allowed to be opened in the first place
-        GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
         transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = storyData.title;
         outcomePanelTransform = transform.GetChild(1);
 
         if (storyPlayerData.isRead)
         {
+            GetComponent<Image>().sprite = buttonSprite;
             outcomePanelTransform.gameObject.SetActive(true);
 
             for (int i = 0; i < storyData.outcomes.Count; i++)
@@ -65,22 +70,26 @@ public class DescriptionButtonController : MonoBehaviour
         }
         else
         {
+            GetComponent<Image>().sprite = buttonEmptySprite;
             outcomePanelTransform.gameObject.SetActive(false);
         }
     }
 
     public void LoadScene()
     {
-        StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas[storyIndex].indices;
-        StaticDataManager.SelectedIndex = Array.IndexOf(StaticDataManager.SelectedStoryIndices, storyIndex);
+        if (StaticDataManager.StoryPlayerDatas[storyIndex].isEnabled)
+        {
+            StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(storyIndex)).Keys.ToArray();
+            StaticDataManager.SelectedIndex = Array.IndexOf(StaticDataManager.SelectedStoryIndices, storyIndex);
 
-        if (StaticDataManager.StoryPlayerDatas[storyIndex].isRead)
-        {
-            SceneManager.LoadSceneAsync("StoryTextScene");
-        }
-        else
-        {
-            SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+            if (StaticDataManager.StoryPlayerDatas[storyIndex].isRead)
+            {
+                SceneManager.LoadSceneAsync("StoryTextScene");
+            }
+            else
+            {
+                SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+            }
         }
     }
 }

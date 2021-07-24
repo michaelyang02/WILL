@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -28,7 +29,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
 
         GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
 
-        StartCoroutine(AnimateWriting(storyData.initialText, outcomeText));
+        StartCoroutine(AnimateWriting(GetRearrangedInitialText(storyData), outcomeText));
     }
 
     void Update()
@@ -52,6 +53,48 @@ public class StoryAnimatedTextManager : MonoBehaviour
             isAUTO = false;
             autoText.SetActive(false);
         }
+    }
+
+    public static List<string> GetRearrangedInitialText(StoryData storyData)
+    {
+        List<string> rearrangementText = new List<string>(storyData.initialText);
+        RearrangementPlayerData rpd = StaticDataManager.RearrangementPlayerDatas[storyData.index];
+
+        foreach (KeyValuePair<int, StoryData.LineFlags> kvp in storyData.lastLineTypes)
+        {
+            rearrangementText[rearrangementText.Count + kvp.Key] = "";
+        }
+        rearrangementText.RemoveAll(s => s == "");
+
+        Dictionary<RearrangementPlayerData.TextboxIndices, List<string>> textboxStrings = new Dictionary<RearrangementPlayerData.TextboxIndices, List<string>>(); 
+
+        foreach (int index in StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(storyData.index)).Keys)
+        {
+            var orderedLineTypes = StaticDataManager.StoryDatas[index].lastLineTypes.OrderBy(k => k.Key).ToList();
+            List<string> initialText = StaticDataManager.StoryDatas[index].initialText;
+
+            int textboxIndex = -1;
+
+            for (int i = 0; i < orderedLineTypes.Count; i++)
+            {
+                if (i > 0 && (orderedLineTypes[i].Value & StoryData.LineFlags.Draggable) == 0 && orderedLineTypes[i - 1].Value == orderedLineTypes[i].Value)
+                {
+                    textboxStrings[new RearrangementPlayerData.TextboxIndices() {storyIndex = index, textboxIndex = textboxIndex}].Add(initialText[initialText.Count + orderedLineTypes[i].Key]);
+                }
+                else
+                {
+                    textboxIndex++;
+                    textboxStrings.Add(new RearrangementPlayerData.TextboxIndices() {storyIndex = index, textboxIndex = textboxIndex}, new List<string>() {initialText[initialText.Count + orderedLineTypes[i].Key]});
+                }
+            }
+        }
+
+        foreach (RearrangementPlayerData.TextboxIndices tbi in rpd.rearrangementTextboxIndices[storyData.index])
+        {
+            rearrangementText.AddRange(textboxStrings[tbi]);
+        }
+
+        return rearrangementText;
     }
 
     IEnumerator AnimateWriting(params List<string>[] writingList)
@@ -113,7 +156,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
                         cleanedIndex++;
                     }
                 }
-                    yield return StartCoroutine(WaitProceeding(20f, true));
+                yield return StartCoroutine(WaitProceeding(20f, true));
             }
         }
         yield break;
@@ -172,9 +215,16 @@ public class StoryAnimatedTextManager : MonoBehaviour
         yield break;
     }
 
-    public void BackToMainGame()
+    public void BackToPreviousScene()
     {
-        CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[storyData.index]);
-        SceneManager.LoadSceneAsync("MainGameScene");
+        if (StaticDataManager.StoryPlayerDatas[storyData.index].isRead)
+        {
+            SceneManager.LoadSceneAsync("StoryTextScene");
+        }
+        else
+        {
+            CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[storyData.index]);
+            SceneManager.LoadSceneAsync("MainGameScene");
+        }
     }
 }

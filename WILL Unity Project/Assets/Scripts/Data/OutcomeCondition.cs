@@ -6,52 +6,53 @@ using UnityEngine;
 // 1. strict sequence (seq 0.1, 0.2) 0.1 must be immediately before 0.2, etc.
 // 1*. loose sequence (bef 0.1, 0.2) 0.1 is before but not necessarily immediately before 0.2 (may add later)
 // 2. include (inc 0.1)
-// 3. exclude (exc 0.4)
-// 4. others (eta) et alii; outcome with condition must be last
 
 public abstract class OutcomeCondition
 {
-    public abstract bool IsConditionMet(List<RearrangementData.TextboxIndices> textboxIndices);
+    public abstract bool IsConditionMet(List<RearrangementPlayerData.TextboxIndices> textboxIndices);
 
-    public static OutcomeCondition FromString(string conditionString)
+    public static List<OutcomeCondition> FromString(string conditionsString)
     {
-        List<RearrangementData.TextboxIndices> textboxIndices = new List<RearrangementData.TextboxIndices>();
+        string[] conditionStrings = conditionsString.Split(new string[] { "; "}, System.StringSplitOptions.None);
+        List<OutcomeCondition> outcomeConditions = new List<OutcomeCondition>();
 
-        if (conditionString.Length > 4)
+        foreach (string cs in conditionStrings)
         {
-            string[] conditions = conditionString.Substring(4).Split(new string[] { ", " }, System.StringSplitOptions.None);
+            List<RearrangementPlayerData.TextboxIndices> textboxIndices = new List<RearrangementPlayerData.TextboxIndices>();
+
+            string[] conditions = cs.Substring(4).Split(new string[] { ", " }, System.StringSplitOptions.None);
             textboxIndices = conditions.Select(s =>
             {
                 string storyString = s.Substring(0, s.IndexOf('.'));
                 string textboxString = s.Substring(s.IndexOf('.') + 1);
-                return new RearrangementData.TextboxIndices() { storyIndex = int.Parse(storyString), textboxIndex = int.Parse(textboxString) };
+                return new RearrangementPlayerData.TextboxIndices() { storyIndex = int.Parse(storyString), textboxIndex = int.Parse(textboxString) };
             }).ToList();
-        }
 
-        switch (conditionString.Substring(0, 3))
-        {
-            case "eta":
-                return new OthersCondition();
-            case "seq":
-                return new SequenceCondition { matchTextboxIndices = textboxIndices };
-            case "inc":
-                return new IncludeCondition { matchTextboxIndices = textboxIndices };
-            case "exc":
-                return new ExcludeCondition { matchTextboxIndices = textboxIndices };
-            default:
-                return null;
+            switch (cs.Substring(0, 3))
+            {
+                case "seq":
+                    outcomeConditions.Add(new SequenceCondition { matchTextboxIndices = textboxIndices });
+                    break;
+                case "bef":
+                    outcomeConditions.Add(new BeforeCondition { matchTextboxIndices = textboxIndices });
+                    break;
+                case "inc":
+                    outcomeConditions.Add(new IncludeCondition { matchTextboxIndices = textboxIndices });
+                    break;
+                default:
+                    break;
+            }
         }
+        return outcomeConditions;
     }
 }
 
 public class SequenceCondition : OutcomeCondition
 {
-    public List<RearrangementData.TextboxIndices> matchTextboxIndices { get; set; }
+    public List<RearrangementPlayerData.TextboxIndices> matchTextboxIndices { get; set; }
 
-    public override bool IsConditionMet(List<RearrangementData.TextboxIndices> textboxIndices)
+    public override bool IsConditionMet(List<RearrangementPlayerData.TextboxIndices> textboxIndices)
     {
-        int matchListCount = matchTextboxIndices.Count;
-
         for (int i = 0; i < textboxIndices.Count - matchTextboxIndices.Count + 1; i++)
         {
             bool isMatch = true;
@@ -74,11 +75,33 @@ public class SequenceCondition : OutcomeCondition
     }
 }
 
+public class BeforeCondition : OutcomeCondition
+{
+    public List<RearrangementPlayerData.TextboxIndices> matchTextboxIndices { get; set; }
+
+    public override bool IsConditionMet(List<RearrangementPlayerData.TextboxIndices> textboxIndices)
+    {
+        for (int i = 0; i < matchTextboxIndices.Count - 1; i++)
+        {
+            if (textboxIndices.IndexOf(matchTextboxIndices[i]) == -1 || textboxIndices.IndexOf(matchTextboxIndices[i]) > textboxIndices.IndexOf(matchTextboxIndices[i + 1]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public override string ToString()
+    {
+        return "bef " + string.Join(", ", matchTextboxIndices.Select(m => m.storyIndex.ToString() + "." + m.textboxIndex).ToList());
+    }
+}
+
 public class IncludeCondition : OutcomeCondition
 {
-    public List<RearrangementData.TextboxIndices> matchTextboxIndices { get; set; }
+    public List<RearrangementPlayerData.TextboxIndices> matchTextboxIndices { get; set; }
 
-    public override bool IsConditionMet(List<RearrangementData.TextboxIndices> textboxIndices)
+    public override bool IsConditionMet(List<RearrangementPlayerData.TextboxIndices> textboxIndices)
     {
         return !textboxIndices.Except(matchTextboxIndices).Any();
     }
@@ -89,39 +112,16 @@ public class IncludeCondition : OutcomeCondition
     }
 }
 
-public class ExcludeCondition : OutcomeCondition
-{
-    public List<RearrangementData.TextboxIndices> matchTextboxIndices { get; set; }
-
-    public override bool IsConditionMet(List<RearrangementData.TextboxIndices> textboxIndices)
-    {
-        return !textboxIndices.Intersect(matchTextboxIndices).Any();
-    }
-
-    public override string ToString()
-    {
-        return "exc " + string.Join(", ", matchTextboxIndices.Select(m => m.storyIndex.ToString() + "." + m.textboxIndex).ToList());
-    }
-}
-
-public class OthersCondition : OutcomeCondition
-{
-    public override bool IsConditionMet(List<RearrangementData.TextboxIndices> textboxIndices)
-    {
-        return true;
-    }
-
-    public override string ToString()
-    {
-        return "eta";
-    }
-}
-
 public static class OutcomeConditionList
 {
-    public static bool IsConditionMet(this List<OutcomeCondition> outcomeConditions, List<RearrangementData.TextboxIndices> textboxIndices)
+    public static bool IsConditionMet(this List<List<OutcomeCondition>> outcomeConditions, List<RearrangementPlayerData.TextboxIndices> textboxIndices)
     {
-        return outcomeConditions.Aggregate(true, (satisfied, next) =>
-        satisfied && next.IsConditionMet(textboxIndices));
+        return outcomeConditions.Aggregate(false, (satisfied, next) =>
+        satisfied || next.Aggregate(true, (s, n) => s && n.IsConditionMet(textboxIndices)));
+    }
+
+    public static string OutcomeConditionListString(this List<OutcomeCondition> outcomeConditions)
+    {
+        return string.Join("; ", outcomeConditions.Select(oc => oc.ToString()));
     }
 }

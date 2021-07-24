@@ -270,7 +270,7 @@ PrefabInstance:
       objectReference: {fileID: 1815458627}
     - target: {fileID: 3074082073013883448, guid: 765b547833a1d7f4d91127991a54b7db, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: BackToMainGame
+      value: BackToPreviousScene
       objectReference: {fileID: 0}
     - target: {fileID: 3074082073013883448, guid: 765b547833a1d7f4d91127991a54b7db, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
