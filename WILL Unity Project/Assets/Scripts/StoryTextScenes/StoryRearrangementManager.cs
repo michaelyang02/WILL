@@ -27,6 +27,7 @@ public class StoryRearrangementManager : MonoBehaviour
     public Sprite numbered1Sprite;
     public Sprite numbered2Sprite;
     public Sprite numbered3Sprite;
+    public Sprite pinnedSprite;
 
     private Color typeColor = new Color(1f, 0.2f, 0.2f, 0.5f);
 
@@ -35,7 +36,6 @@ public class StoryRearrangementManager : MonoBehaviour
     private Dictionary<RearrangementPlayerData.TextboxIndices, Transform> textboxTransforms;
     private Dictionary<Transform, RearrangementPlayerData.TextboxIndices> textboxTextboxIndices;
     private Dictionary<int, Transform> outcomeTransforms;
-
 
     void Start()
     {
@@ -203,6 +203,13 @@ public class StoryRearrangementManager : MonoBehaviour
                     tempTypeImageGameObject.GetComponent<Image>().color = typeColor;
                     tempTypeImageGameObject.transform.SetParent(typeTransform, false);
                 }
+                if ((textBlock.flag & StoryData.LineFlags.Pinned) == StoryData.LineFlags.Pinned)
+                {
+                    GameObject tempTypeImageGameObject = Instantiate(typeImagePrefab);
+                    tempTypeImageGameObject.GetComponent<Image>().sprite = pinnedSprite;
+                    tempTypeImageGameObject.GetComponent<Image>().color = typeColor;
+                    tempTypeImageGameObject.transform.SetParent(typeTransform, false);
+                }
 
                 textboxTransforms.Add(new RearrangementPlayerData.TextboxIndices() { storyIndex = index, textboxIndex = textBlockIndex }, tempTextboxGameObject.transform);
                 textBlockIndex++;
@@ -323,7 +330,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
                     foregroundSubpanelTransforms[index].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + i.ToString();
                     StaticDataManager.StoryPlayerDatas[index].selectedOutcome = i;
-                    
+
                     LayoutRebuilder.ForceRebuildLayoutImmediate(subpanelTransforms[index].GetComponent<RectTransform>());
                     LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
                     break;
@@ -335,6 +342,22 @@ public class StoryRearrangementManager : MonoBehaviour
         { // without async to avoid the slight pause before loading thus revealing outcome
             SceneManager.LoadScene("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
         }
+    }
+
+    public void Reset()
+    {
+        foreach (Transform textboxTransform in textboxTransforms.Values)
+        {
+            textboxTransform.SetParent(tempTextboxParentTransform, false);
+        }
+
+        foreach (Transform outcomeTransform in outcomeTransforms.Values)
+        {
+            outcomeTransform.SetParent(tempTextboxParentTransform, false);
+        }
+
+        textboxTransforms.OrderBy(kvp => kvp.Key.storyIndex).ThenBy(kvp => kvp.Key.textboxIndex).ToList().ForEach(t => t.Value.SetParent(subpanelTransforms[t.Key.storyIndex], false));
+        outcomeTransforms.ToList().ForEach(o => o.Value.SetParent(subpanelTransforms[o.Key], false));
     }
 
 

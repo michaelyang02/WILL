@@ -38,12 +38,14 @@ public class StoryData
     public enum LineFlags : byte
     {
         None = 0,
-        Draggable = 1,
-        Switching = 1 << 1,
-        Unswappable = 1 << 2,
-        Numbered1 = 1 << 3,
-        Numbered2 = 1 << 4,
-        Numbered3 = 1 << 5
+        Exposition = 1,
+        Draggable = 1 << 1,
+        Switching = 1 << 2,
+        Unswappable = 1 << 3,
+        Numbered1 = 1 << 4,
+        Numbered2 = 1 << 5,
+        Numbered3 = 1 << 6,
+        Pinned = 1 << 7
     }
 
     [System.Serializable]

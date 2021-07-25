@@ -51,7 +51,11 @@ public class SquareController : MonoBehaviour
 
     void Update()
     {
-        ButtonFollow();
+        // button follows mouse it is clicked
+        if (isClicked)
+        {
+            descriptionButton.transform.position = Camera.main.WorldToScreenPoint(transform.position - YDirectionButtonFactor * YExtent);
+        }
     }
 
     void OnDestroy()
@@ -106,16 +110,6 @@ public class SquareController : MonoBehaviour
         descriptionButton.transform.SetParent(canvas.transform, false);
         descriptionButton.transform.SetSiblingIndex(0);
         descriptionButton.GetComponent<DescriptionButtonController>().storyIndex = storyIndex;
-    }
-
-    void ButtonFollow()
-    {
-        // button follows mouse it is clicked
-        if (isClicked)
-        {
-            Vector3 buttonPos = Camera.main.WorldToScreenPoint(transform.position - YDirectionButtonFactor * YExtent);
-            descriptionButton.transform.position = buttonPos;
-        }
     }
 
     void OnZoomChange(float cameraZoomLevel)

@@ -35,6 +35,8 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
     private static Color ValidColor = new Color(0f, 0f, 0f, 0.5f);
     private static Color InvalidColor = new Color(1f, 0f, 0f, 0.75f);
 
+    private static Dictionary<Transform, List<Transform>> lastTransforms = new Dictionary<Transform, List<Transform>>();
+
     private Transform lastSwitchingSubpanelTransform;
     private int lastSwitchingIndex;
     private static bool isSwitched;
@@ -80,6 +82,17 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
 
             lastPosition = textboxRectTransform.position;
             textboxRectTransform.Rotate(new Vector3(0f, 0f, 0.5f));
+
+            lastTransforms.Clear();
+
+            foreach (Transform transform in RearrangementPanelTransform)
+            {
+                lastTransforms.Add(transform, new List<Transform>());
+                foreach (Transform textboxTransform in transform)
+                {
+                    lastTransforms[transform].Add(textboxTransform);
+                }
+            }
 
             currentSubpanelTransform = transform.parent;
             currentPlaceholderIndex = transform.GetSiblingIndex();
@@ -146,13 +159,28 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
                 if (currentPlaceholderIndex > 1 &&
                 y > currentSubpanelTransform.GetChild(currentPlaceholderIndex - 1).GetComponent<RectTransform>().position.y)
                 { // move index down if above previous one
+
                     currentPlaceholderIndex--;
+
+                    if ((currentSubpanelTransform.GetChild(currentPlaceholderIndex).GetComponent<TextboxController>().boxFlag & StoryData.LineFlags.Pinned) == StoryData.LineFlags.Pinned)
+                    {
+                        currentPlaceholderIndex--;
+                        currentSubpanelTransform.GetChild(currentPlaceholderIndex).SetSiblingIndex(currentPlaceholderIndex + 2);
+                    }
+
                     isIndexChanged = true;
                 }
                 else if (currentPlaceholderIndex < currentSubpanelTransform.childCount - 2 &&
                 y < currentSubpanelTransform.GetChild(currentPlaceholderIndex + 1).GetComponent<RectTransform>().position.y)
                 { // move index up if below following one
                     currentPlaceholderIndex++;
+
+                    if ((currentSubpanelTransform.GetChild(currentPlaceholderIndex).GetComponent<TextboxController>().boxFlag & StoryData.LineFlags.Pinned) == StoryData.LineFlags.Pinned)
+                    {
+                        currentPlaceholderIndex++;
+                        currentSubpanelTransform.GetChild(currentPlaceholderIndex).SetSiblingIndex(currentPlaceholderIndex - 2);
+                    }
+
                     isIndexChanged = true;
                 }
             }
@@ -267,17 +295,15 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
             StoryData.LineFlags.Switching && !isSwitched && currentSubpanelTransform !=
             lastSubpanelTransform))
             {
-                transform.SetParent(lastSubpanelTransform, false);
-
-                if (isSwitched)
+                foreach (List<Transform> transforms in lastTransforms.Values)
                 {
-                    Transform oldSwtichedTransform = lastSubpanelTransform.GetChild(lastPlaceholderIndex);
-                    oldSwtichedTransform.SetParent(lastSwitchingSubpanelTransform);
-                    oldSwtichedTransform.SetSiblingIndex(lastSwitchingIndex);
+                    transforms.ForEach(t => t.SetParent(null, false));
                 }
 
-                transform.SetSiblingIndex(lastPlaceholderIndex);
-
+                foreach (var kvp in lastTransforms)
+                {
+                    kvp.Value.ForEach(t => t.SetParent(kvp.Key, false));
+                }
             }
             else
             {
