@@ -13,6 +13,8 @@ public class StoryRearrangementManager : MonoBehaviour
     public GameObject foregroundPanel;
 
     public GameObject rearrangementPanel;
+    public GameObject resetButton;
+    public GameObject startButton;
 
     public Transform tempTextboxParentTransform;
 
@@ -31,11 +33,18 @@ public class StoryRearrangementManager : MonoBehaviour
 
     private Color typeColor = new Color(1f, 0.2f, 0.2f, 0.5f);
 
+    private Color backgroundColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+    private Color undraggableColor = new Color(0.25f, 0.25f, 0.25f, 0.75f);
+    private Color draggableColor = Color.white;
+    private Color outcomeColor = new Color(0.25f, 0.25f, 0.25f, 0.25f);
+
     private Dictionary<int, Transform> subpanelTransforms;
     private Dictionary<int, Transform> foregroundSubpanelTransforms;
     private Dictionary<RearrangementPlayerData.TextboxIndices, Transform> textboxTransforms;
     private Dictionary<Transform, RearrangementPlayerData.TextboxIndices> textboxTextboxIndices;
     private Dictionary<int, Transform> outcomeTransforms;
+
+    private List<TextboxController> textboxControllers;
 
     void Start()
     {
@@ -47,6 +56,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
         LoadStories();
         Rearrange();
+        SetNotRearranging();
     }
 
     void LoadStories()
@@ -61,29 +71,21 @@ public class StoryRearrangementManager : MonoBehaviour
 
         RectTransform rearrangementRectTransform = rearrangementPanel.GetComponent<RectTransform>();
         RectTransform middleRectTransform = middlePanel.GetComponent<RectTransform>();
+        RectTransform foreRectTransform = foregroundPanel.GetComponent<RectTransform>();
 
         rearrangementRectTransform.offsetMin = new Vector2(size, rearrangementRectTransform.offsetMin.y);
         rearrangementRectTransform.offsetMax = new Vector2(-size, rearrangementRectTransform.offsetMax.y);
         middleRectTransform.offsetMin = new Vector2(size, middleRectTransform.offsetMin.y);
         middleRectTransform.offsetMax = new Vector2(-size, middleRectTransform.offsetMax.y);
+        foreRectTransform.offsetMin = new Vector2(size, foreRectTransform.offsetMin.y);
+        foreRectTransform.offsetMax = new Vector2(-size, foreRectTransform.offsetMax.y);
 
-
-        int subPanelIndex = 0;
+        leftPanel.GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[0]].character);
+        rightPanel.GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedStoryIndices.Length - 1]].character);
 
         foreach (int index in StaticDataManager.SelectedStoryIndices)
         {
-
             StoryData storyData = StaticDataManager.StoryDatas[index];
-
-            // instantiate side background panel
-            if (subPanelIndex == 0)
-            {
-                leftPanel.GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
-            }
-            if (subPanelIndex == StaticDataManager.SelectedStoryIndices.Length - 1)
-            {
-                rightPanel.GetComponent<Image>().color = ColorManager.GetColor(storyData.character);
-            }
 
             // instantiate background panel
             GameObject tempBackgroundPanel = Instantiate(backgroundPanelPrefab);
@@ -155,13 +157,13 @@ public class StoryRearrangementManager : MonoBehaviour
                     banner.gameObject.SetActive(true);
 
                     // textbox color
-                    backgroundTransform.GetComponent<Image>().color = Color.white;
+                    backgroundTransform.GetComponent<Image>().color = draggableColor;
                 }
                 else
                 {
                     // Undraggable
                     // textbox color
-                    backgroundTransform.GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.25f, 0.75f);
+                    backgroundTransform.GetComponent<Image>().color = undraggableColor;
                 }
 
 
@@ -219,16 +221,13 @@ public class StoryRearrangementManager : MonoBehaviour
             outcomeTextboxGameObject.GetComponent<TextboxController>().boxFlag = StoryData.LineFlags.None;
             outcomeTextboxGameObject.GetComponent<TextboxController>().storyIndex = storyData.index;
             outcomeTextboxGameObject.transform.SetParent(tempTextboxParentTransform, false);
-
             // set text
             outcomeTextboxGameObject.transform.GetChild(2).GetComponent<TMPro.TMP_Text>().text = outcomeText;
 
             // textbox color
-            outcomeTextboxGameObject.transform.GetChild(1).GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.25f, 0.25f);
+            outcomeTextboxGameObject.transform.GetChild(1).GetComponent<Image>().color = outcomeColor;
 
             outcomeTransforms.Add(index, outcomeTextboxGameObject.transform);
-
-            subPanelIndex++;
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
@@ -293,9 +292,67 @@ public class StoryRearrangementManager : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
     }
 
+    void SetNotRearranging()
+    {
+        TextboxController.IsAllDraggable = false;
+        foreach (Transform transform in textboxTransforms.Values)
+        {
+            transform.GetChild(1).GetComponent<Image>().color = undraggableColor;
+            transform.GetChild(2).GetComponent<TMPro.TMP_Text>().color = Color.white;
+        }
+        foreach (KeyValuePair<int, Transform> kvp in outcomeTransforms)
+        {
+            Color color = ColorManager.GetColor(StaticDataManager.StoryDatas[kvp.Key].character);
+            color.a = 0.75f;
+            kvp.Value.GetChild(1).GetComponent<Image>().color = color;
+        }
+        startButton.SetActive(false);
+        resetButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Try Again";
+
+        leftPanel.GetComponent<Image>().color = backgroundColor;
+        rightPanel.GetComponent<Image>().color = backgroundColor;
+        foreach (Transform subPanelTransform in middlePanel.transform)
+        {
+            subPanelTransform.GetComponent<Image>().color = backgroundColor;
+        }
+    }
+
+    void SetRearranging()
+    {
+        TextboxController.IsAllDraggable = true;
+        foreach (Transform transform in textboxTransforms.Values)
+        {
+            if ((transform.GetComponent<TextboxController>().boxFlag & StoryData.LineFlags.Draggable) == StoryData.LineFlags.Draggable)
+            {
+                transform.GetChild(1).GetComponent<Image>().color = draggableColor;
+                transform.GetChild(2).GetComponent<TMPro.TMP_Text>().color = Color.black;
+            }
+            else
+            {
+                transform.GetChild(1).GetComponent<Image>().color = undraggableColor;
+            }
+        }
+        foreach (Transform outcomeTransform in outcomeTransforms.Values)
+        {
+            outcomeTransform.GetChild(1).GetComponent<Image>().color = outcomeColor;
+        }
+        startButton.SetActive(true);
+        resetButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Reset";
+
+        leftPanel.GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[0]].character);
+        rightPanel.GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedStoryIndices.Length - 1]].character);
+        for (int i = 0; i < StaticDataManager.SelectedStoryIndices.Length; i++)
+        {
+            middlePanel.transform.GetChild(i).GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[i]].character);
+        }
+    }
+
     public void DetermineOutcome()
     {
+        SetNotRearranging();
+
         RearrangementPlayerData rearrangementPlayerData = StaticDataManager.RearrangementPlayerDatas[StaticDataManager.SelectedStoryIndices[0]];
+        RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
 
         StaticDataManager.AnimatedOutcomes.Clear();
 
@@ -312,28 +369,41 @@ public class StoryRearrangementManager : MonoBehaviour
             }
 
             rearrangementPlayerData.rearrangementTextboxIndices[index] = textboxIndices;
+        }
 
-            StoryData storyData = StaticDataManager.StoryDatas[index];
-            RearrangementData rearrangementData = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index));
+        foreach (MasterOutcome masterOutcome in rearrangementData.masterOutcomes)
+        { // go through each master outcome
 
-            for (int i = 0; i < storyData.outcomes.Count; i++)
+            bool isConditionsMet = true;
+            foreach (KeyValuePair<int, List<List<OutcomeCondition>>> kvp in masterOutcome.requiredOutcomeConditions)
             {
-                if (rearrangementData[index][i].IsConditionMet(textboxIndices))
-                { // arrangement meets this outcome's conditions (first)
-                    if (!StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i])
-                    {
-                        StaticDataManager.AnimatedOutcomes.Add(new StoryData.OutcomeIndices { storyIndex = index, outcomeIndex = i });
-                        StaticDataManager.StoryPlayerDatas[index].outcomeDiscovered[i] = true;
-                    }
-                    outcomeTransforms[index].GetChild(2).GetComponent<TMPro.TMP_Text>().text = string.Join("\n", storyData.outcomes[i].outcomeText).Replace("-", "").Replace("\\", "");
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(outcomeTransforms[index].GetComponent<RectTransform>());
-
-                    foregroundSubpanelTransforms[index].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + i.ToString();
-                    StaticDataManager.StoryPlayerDatas[index].selectedOutcome = i;
-
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(subpanelTransforms[index].GetComponent<RectTransform>());
-                    LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
+                if (!kvp.Value.IsConditionMet(rearrangementPlayerData.rearrangementTextboxIndices[kvp.Key]))
+                {
+                    isConditionsMet = false;
                     break;
+                }
+            }
+
+            if (isConditionsMet)
+            {
+                foreach (StoryData.OutcomeIndices outcomeIndices in masterOutcome.outcomes)
+                {
+                    if (!StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].outcomeDiscovered[outcomeIndices.outcomeIndex])
+                    {
+                        StaticDataManager.AnimatedOutcomes.Add(outcomeIndices);
+                        StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].outcomeDiscovered[outcomeIndices.outcomeIndex] = true;
+                    }
+
+                    outcomeTransforms[outcomeIndices.storyIndex].GetChild(2).GetComponent<TMPro.TMP_Text>().text = string.Join("\n", StaticDataManager.StoryDatas[outcomeIndices.storyIndex].outcomes[outcomeIndices.outcomeIndex].outcomeText).Replace("-", "").Replace("\\", "");
+
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(outcomeTransforms[outcomeIndices.storyIndex].GetComponent<RectTransform>());
+
+                    foregroundSubpanelTransforms[outcomeIndices.storyIndex].GetChild(0).GetComponent<TMPro.TMP_Text>().text = "Outcome " + outcomeIndices.outcomeIndex.ToString();
+
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(subpanelTransforms[outcomeIndices.storyIndex].GetComponent<RectTransform>());
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(rearrangementPanel.GetComponent<RectTransform>());
+
+                    StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].selectedOutcome = outcomeIndices.outcomeIndex;
                 }
             }
         }
@@ -346,18 +416,25 @@ public class StoryRearrangementManager : MonoBehaviour
 
     public void Reset()
     {
-        foreach (Transform textboxTransform in textboxTransforms.Values)
+        if (TextboxController.IsAllDraggable)
         {
-            textboxTransform.SetParent(tempTextboxParentTransform, false);
-        }
+            foreach (Transform textboxTransform in textboxTransforms.Values)
+            {
+                textboxTransform.SetParent(tempTextboxParentTransform, false);
+            }
 
-        foreach (Transform outcomeTransform in outcomeTransforms.Values)
+            foreach (Transform outcomeTransform in outcomeTransforms.Values)
+            {
+                outcomeTransform.SetParent(tempTextboxParentTransform, false);
+            }
+
+            textboxTransforms.OrderBy(kvp => kvp.Key.storyIndex).ThenBy(kvp => kvp.Key.textboxIndex).ToList().ForEach(t => t.Value.SetParent(subpanelTransforms[t.Key.storyIndex], false));
+            outcomeTransforms.ToList().ForEach(o => o.Value.SetParent(subpanelTransforms[o.Key], false));
+        }
+        else
         {
-            outcomeTransform.SetParent(tempTextboxParentTransform, false);
+            SetRearranging();
         }
-
-        textboxTransforms.OrderBy(kvp => kvp.Key.storyIndex).ThenBy(kvp => kvp.Key.textboxIndex).ToList().ForEach(t => t.Value.SetParent(subpanelTransforms[t.Key.storyIndex], false));
-        outcomeTransforms.ToList().ForEach(o => o.Value.SetParent(subpanelTransforms[o.Key], false));
     }
 
 

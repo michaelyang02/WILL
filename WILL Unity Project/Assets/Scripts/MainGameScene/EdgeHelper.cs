@@ -115,7 +115,9 @@ public class EdgeHelper : MonoBehaviour
         }
         else
         {
-            return new EdgeCollection() { edges = edges };
+            GameObject gameObject = new GameObject();
+            edges.ForEach(e => e.edgeGameObject.transform.SetParent(gameObject.transform));
+            return new EdgeCollection() { edges = edges, character = StoryData.Character.None, edgeGameObject = gameObject};
         }
     }
 }
@@ -131,7 +133,8 @@ public enum EdgeType
 public abstract class CompositeEdge
 {
     public abstract bool this[int index] { get; }
-    public abstract StoryData.Character character { get; set; }
+    public StoryData.Character character { get; set; }
+    public GameObject edgeGameObject { get; set; }
     public abstract void SetActive(bool state);
 }
 
@@ -140,8 +143,6 @@ public class Edge : CompositeEdge
     public int startIndex { get; set; }
     public int endIndex { get; set; }
     public EdgeType edgeType { get; set; }
-    public override StoryData.Character character { get; set; }
-    public GameObject edgeGameObject { get; set; }
 
     public bool isDiscovered() => StaticDataManager.StoryPlayerDatas[startIndex].isDiscovered && StaticDataManager.StoryPlayerDatas[endIndex].isDiscovered;
 
@@ -152,7 +153,6 @@ public class Edge : CompositeEdge
 public class EdgeCollection : CompositeEdge
 {
     public List<Edge> edges { get; set; }
-    public override StoryData.Character character { get; set; }
 
     public override bool this[int index] => edges.Any(e => e[index]);
     public override void SetActive(bool state) => edges.Where(e => e.isDiscovered()).ToList().ForEach(e => e.SetActive(state));

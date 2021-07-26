@@ -33,7 +33,7 @@ public class MainGameManager : MonoBehaviour
         indexCharacters = StaticDataManager.StoryDatas.ToDictionary(d => d.index, d => d.character);
         squareControllers = new List<SquareController>();
         edges = new List<CompositeEdge>();
-
+        
         GenerateSquares();
         GenerateEdges();
     }
@@ -53,7 +53,7 @@ public class MainGameManager : MonoBehaviour
         }
         if (index != -1)
         {
-            List<StoryData.Character> companionCharacters = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index)).Keys.Select(k => indexCharacters[k]).ToList();
+            List<StoryData.Character> companionCharacters = StaticDataManager.RearrangementDatas[index].indices.Select(i => indexCharacters[i]).ToList();
 
             squareControllers[index].Select();
             // set all edges unrelated to companions to false
@@ -76,6 +76,9 @@ public class MainGameManager : MonoBehaviour
         StoryManager.CheckAnyStoryDiscovered();
         StoryManager.CheckAnyEnabled();
 
+        squareControllers.ForEach(sc => Destroy(sc.gameObject));
+        squareControllers.Clear();
+
         for (int index = 0; index < StaticDataManager.StoryPosition.Count; index++)
         {
             if (StaticDataManager.StoryPlayerDatas[index].isDiscovered)
@@ -85,7 +88,7 @@ public class MainGameManager : MonoBehaviour
                 SquareController squareController = squareGO.GetComponent<SquareController>();
                 squareControllers.Add(squareController);
                 squareController.storyIndex = index;
-
+                
                 // set color
                 if (StaticDataManager.StoryPlayerDatas[index].isEnabled)
                 {
@@ -101,15 +104,18 @@ public class MainGameManager : MonoBehaviour
 
     public void GenerateEdges()
     {
+        edges.ForEach(e => Destroy(e.edgeGameObject));
+        edges.Clear();
+
         foreach (StoryData storyData in StaticDataManager.StoryDatas)
         {
             if (storyData.parentIndex >= 0)
             { // parent-child edge
                 edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Children, storyData.index, storyData.parentIndex));
             }
-            if (storyData.requiredEnableddOutcomes.Any())
+            if (storyData.requiredEnabledOutcomes.Any())
             { // requirement edge
-                foreach (StoryData.OutcomeIndices outcomeIndices in storyData.requiredEnableddOutcomes)
+                foreach (StoryData.OutcomeIndices outcomeIndices in storyData.requiredEnabledOutcomes)
                 {
                     if (storyData.parentIndex == outcomeIndices.storyIndex)
                     { // skip if the required story is of the parent
@@ -129,9 +135,9 @@ public class MainGameManager : MonoBehaviour
         }
 
         // companion indices
-        foreach (RearrangementData rd in StaticDataManager.RearrangementDatas) if (rd.Keys.Count > 1)
-            {
-                edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Companion, rd.Keys.ToArray()));
-            }
+        foreach (RearrangementData rd in StaticDataManager.RearrangementDatas.Values.Distinct()) if (rd.indices.Length > 1)
+        {
+            edges.Add(EdgeHelper.Instance.GenerateEdge(EdgeType.Companion, rd.indices));
+        }
     }
 }

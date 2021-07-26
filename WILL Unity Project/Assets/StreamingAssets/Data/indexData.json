@@ -3,8 +3,13 @@
     "index": 0,
     "parentIndex": -1,
     "requiredDiscoveredOutcomes": [],
-    "requiredEnableddOutcomes": [],
+    "requiredEnabledOutcomes": [],
+    "disablingOutcomes": [],
     "requiredOutcomeIndices": [
+      [],
+      []
+    ],
+    "disablingOutcomeIndices": [
       [],
       []
     ]
@@ -13,8 +18,13 @@
     "index": 1,
     "parentIndex": 0,
     "requiredDiscoveredOutcomes": ["0.1"],
-    "requiredEnableddOutcomes": ["0.1"],
+    "requiredEnabledOutcomes": [],
+    "disablingOutcomes": ["0.0"],
     "requiredOutcomeIndices": [
+      [],
+      []
+    ],
+    "disablingOutcomeIndices": [
       [],
       []
     ]

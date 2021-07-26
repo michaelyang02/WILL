@@ -79,7 +79,7 @@ public class DescriptionButtonController : MonoBehaviour
     {
         if (StaticDataManager.StoryPlayerDatas[storyIndex].isEnabled)
         {
-            StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(storyIndex)).Keys.ToArray();
+            StaticDataManager.SelectedStoryIndices = StaticDataManager.RearrangementDatas[storyIndex].indices;
             StaticDataManager.SelectedIndex = Array.IndexOf(StaticDataManager.SelectedStoryIndices, storyIndex);
 
             if (StaticDataManager.StoryPlayerDatas[storyIndex].isRead)

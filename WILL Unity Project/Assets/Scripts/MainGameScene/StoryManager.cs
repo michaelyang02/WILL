@@ -77,16 +77,20 @@ public static class StoryManager
                 { // check parent
                     isEnabled = false;
                 }
-                else if (storyData.requiredEnableddOutcomes.Any() && 
-                storyData.requiredEnableddOutcomes.Any(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome != oi.outcomeIndex || 
+                else if (storyData.requiredEnabledOutcomes.Any() && 
+                storyData.requiredEnabledOutcomes.Any(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome != oi.outcomeIndex || 
                 !StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex]))
                 { // check any of the required outcomes is not enabled or not selected
+                    isEnabled = false;
+                }
+                else if (storyData.disablingOutcomes.Any() && storyData.disablingOutcomes.Any(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome == oi.outcomeIndex && StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex]))
+                { // check any of the disabling outcomes is selected and enabled
                     isEnabled = false;
                 }
                 
                 StaticDataManager.StoryPlayerDatas[index].isEnabled = isEnabled;
 
-                int[] indices = StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(index)).Keys.ToArray();
+                int[] indices = StaticDataManager.RearrangementDatas[index].indices;
                 if (indices.Length > 1 && !companionList.Contains(indices))
                 { // with companion
                     companionList.Add(indices);
@@ -106,10 +110,10 @@ public static class StoryManager
                         StaticDataManager.StoryPlayerDatas[index].outcomeEnabled[outcomeIndex] = false;
                     }
                     else
-                    { // test all required outcomes enabled, true either not required or all enabled and selected
+                    { // test all required outcomes enabled, true either not required or all enabled and selected AND either no disabling or all disabled or not selected
                         StaticDataManager.StoryPlayerDatas[index].outcomeEnabled[outcomeIndex] = 
                         (!storyData.outcomes[outcomeIndex].requiredOutcomes.Any() || 
-                        storyData.outcomes[outcomeIndex].requiredOutcomes.All(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome == oi.outcomeIndex && StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex]));
+                        storyData.outcomes[outcomeIndex].requiredOutcomes.All(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome == oi.outcomeIndex && StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex])) && (!storyData.outcomes[outcomeIndex].disablingOutcomes.Any() || storyData.outcomes[outcomeIndex].disablingOutcomes.All(oi => StaticDataManager.StoryPlayerDatas[oi.storyIndex].selectedOutcome != oi.outcomeIndex || !StaticDataManager.StoryPlayerDatas[oi.storyIndex].outcomeEnabled[oi.outcomeIndex]));
                     }
                 }
             }

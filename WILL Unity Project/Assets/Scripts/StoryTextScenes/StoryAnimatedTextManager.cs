@@ -68,7 +68,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
 
         Dictionary<RearrangementPlayerData.TextboxIndices, List<string>> textboxStrings = new Dictionary<RearrangementPlayerData.TextboxIndices, List<string>>(); 
 
-        foreach (int index in StaticDataManager.RearrangementDatas.Find(rd => rd.ContainsKey(storyData.index)).Keys)
+        foreach (int index in StaticDataManager.RearrangementDatas[storyData.index].indices)
         {
             var orderedLineTypes = StaticDataManager.StoryDatas[index].lastLineTypes.OrderBy(k => k.Key).ToList();
             List<string> initialText = StaticDataManager.StoryDatas[index].initialText;

@@ -64,6 +64,7 @@ public class StoryData
     public class Outcome
     {
         public List<OutcomeIndices> requiredOutcomes { get; set; }
+        public List<OutcomeIndices> disablingOutcomes { get; set; }
 
         public List<string> outcomeText { get; set; }
         public Dictionary<int, StoryData.LineFlags> firstLineTypes { get; set; }
@@ -93,7 +94,8 @@ public class StoryData
 
     // empty means none required
     public List<OutcomeIndices> requiredDiscoveredOutcomes { get; set; }
-    public List<OutcomeIndices> requiredEnableddOutcomes { get; set; }
+    public List<OutcomeIndices> requiredEnabledOutcomes { get; set; }
+    public List<OutcomeIndices> disablingOutcomes { get; set; }
 
     public List<string> initialText { get; set; }
     public Dictionary<int, LineFlags> lastLineTypes { get; set; }
@@ -107,14 +109,24 @@ public class StoryData
 
     public IndexData ToIndexData()
     {
-        return new IndexData() { index = index, parentIndex = parentIndex, requiredDiscoveredOutcomes = requiredDiscoveredOutcomes, requiredEnableddOutcomes = requiredEnableddOutcomes, requiredOutcomeIndices = outcomes.Select(o => o.requiredOutcomes).ToList() };
+        return new IndexData() { index = index, parentIndex = parentIndex, requiredDiscoveredOutcomes = requiredDiscoveredOutcomes, requiredEnabledOutcomes = requiredEnabledOutcomes, disablingOutcomes = disablingOutcomes, requiredOutcomeIndices = outcomes.Select(o => o.requiredOutcomes).ToList(), disablingOutcomeIndices = outcomes.Select(o => o.disablingOutcomes).ToList() };
     }
 
     public static StoryData FromDatas(TextData textData, IndexData indexData)
     {
         return new StoryData()
         {
-            index = indexData.index, parentIndex = indexData.parentIndex, character = textData.character, title = textData.title, requiredDiscoveredOutcomes = indexData.requiredDiscoveredOutcomes, requiredEnableddOutcomes = indexData.requiredEnableddOutcomes, initialText = textData.initialText, lastLineTypes = textData.lastLineTypes, lineEffects = textData.lineEffects, outcomes = textData.outcomeTexts.Zip(indexData.requiredOutcomeIndices, (t, i) => new Outcome {requiredOutcomes = i, outcomeText = t.outcomeText, firstLineTypes = t.firstLineTypes, lineEffects = t.lineEffects}).ToList()
+            index = indexData.index,
+            parentIndex = indexData.parentIndex,
+            character = textData.character,
+            title = textData.title,
+            requiredDiscoveredOutcomes = indexData.requiredDiscoveredOutcomes,
+            requiredEnabledOutcomes = indexData.requiredEnabledOutcomes,
+            disablingOutcomes = indexData.disablingOutcomes,
+            initialText = textData.initialText,
+            lastLineTypes = textData.lastLineTypes,
+            lineEffects = textData.lineEffects,
+            outcomes = textData.outcomeTexts.Zip(indexData.requiredOutcomeIndices, (o, i) => new {o, i}).Zip(indexData.disablingOutcomeIndices, (x, d) => new Outcome {requiredOutcomes = x.i, disablingOutcomes = d, outcomeText = x.o.outcomeText, firstLineTypes = x.o.firstLineTypes, lineEffects = x.o.lineEffects}).ToList()
         };
     }
 }
@@ -143,6 +155,8 @@ public class IndexData
     public int index { get; set; }
     public int parentIndex { get; set; }
     public List<StoryData.OutcomeIndices> requiredDiscoveredOutcomes { get; set; }
-    public List<StoryData.OutcomeIndices> requiredEnableddOutcomes { get; set; }
+    public List<StoryData.OutcomeIndices> requiredEnabledOutcomes { get; set; }
+    public List<StoryData.OutcomeIndices> disablingOutcomes { get; set; }
     public List<List<StoryData.OutcomeIndices>> requiredOutcomeIndices { get; set; }
+    public List<List<StoryData.OutcomeIndices>> disablingOutcomeIndices { get; set; }
 }

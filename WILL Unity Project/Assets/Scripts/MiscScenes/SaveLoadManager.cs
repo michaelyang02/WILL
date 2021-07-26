@@ -25,22 +25,25 @@ public class SaveLoadManager : MonoBehaviour
 
     }
 
-    public void UnloadSaveLoadScene()
+    public void UnloadSaveLoadScene(bool isSavedLoaded)
     {
-        SerializationManager.Save("saveData", saveDatas);
-
         SceneManager.UnloadSceneAsync("SaveLoadScene");
 
-        if (SceneManager.GetActiveScene().name == "MainGameScene")
-        {
-            MainGameManager.Instance.SquareClick(-1);
-            MainGameManager.Instance.GenerateSquares();
-            MainGameManager.Instance.GenerateEdges();
-        }
-        if (SceneManager.GetActiveScene().name == "MenuScene")
-        {
-            SceneManager.LoadSceneAsync("MainGameScene");
-        }
+        if (isSavedLoaded)
+        { // is actual saving/loading not just cancelling
+            SerializationManager.Save("saveData", saveDatas);
 
+            if (SceneManager.GetActiveScene().name == "MainGameScene" && !isSaving)
+            {
+                MainGameManager.Instance.SquareClick(-1);
+                CameraManager.Instance.FocusCamera(Vector2.zero);
+                MainGameManager.Instance.GenerateSquares();
+                MainGameManager.Instance.GenerateEdges();
+            }
+            if (SceneManager.GetActiveScene().name == "MenuScene")
+            {
+                SceneManager.LoadSceneAsync("MainGameScene");
+            }
+        }
     }
 }

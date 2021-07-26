@@ -16,6 +16,8 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
     private Transform placeholderTransform;
     private Image placeholderImage;
 
+    public static bool IsAllDraggable { get; set; }
+
     private Transform lastSubpanelTransform;
     private int lastPlaceholderIndex;
 
@@ -74,7 +76,7 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (IsDraggable())
+        if (IsDraggable() && IsAllDraggable)
         {
             isValidPosition = true;
             isSwitched = false;
@@ -112,7 +114,7 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (IsDraggable())
+        if (IsDraggable() && IsAllDraggable)
         {
             textboxRectTransform.position = lastPosition + (eventData.position - eventData.pressPosition);
 
@@ -284,7 +286,7 @@ public class TextboxController : BoxController, IPointerDownHandler, IDragHandle
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (IsDraggable())
+        if (IsDraggable() && IsAllDraggable)
         {
             textboxRectTransform.Rotate(new Vector3(0f, 0f, -0.5f));
 

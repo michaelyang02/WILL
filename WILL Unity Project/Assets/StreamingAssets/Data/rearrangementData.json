@@ -1,14 +1,36 @@
 [
   {
-    "0": [
-      ["seq 0.1, 0.2, 0.3"],
-      ["seq 0.2, 0.3, 0.1"]
+    "indices": [0],
+    "masterOutcomes": [
+      {
+        "requiredOutcomeConditions": {
+          "0": ["seq 0.1, 0.2, 0.3"]
+        },
+        "outcomes": ["0.0"]
+      },
+      {
+        "requiredOutcomeConditions": {
+          "0": ["seq 0.2, 0.3, 0.1"]
+        },
+        "outcomes": ["0.1"]
+      }
     ]
   },
   {
-    "1": [
-      ["seq 0.0, 0.1"],
-      ["seq 0.0, 0.1"]
+    "indices": [1],
+    "masterOutcomes": [
+      {
+        "requiredOutcomeConditions": {
+          "1": ["seq 1.0, 1.1"]
+        },
+        "outcomes": ["1.0"]
+      },
+      {
+        "requiredOutcomeConditions": {
+          "1": ["seq 1.1, 1.0"]
+        },
+        "outcomes": ["1.1"]
+      }
     ]
   }
 ]

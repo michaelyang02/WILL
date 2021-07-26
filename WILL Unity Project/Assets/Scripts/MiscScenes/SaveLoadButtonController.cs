@@ -51,7 +51,7 @@ public class SaveLoadButtonController : MonoBehaviour, IPointerEnterHandler, IPo
 
                 saveDatas.isSaved = true;
                 
-                SaveLoadManager.Instance.UnloadSaveLoadScene();
+                SaveLoadManager.Instance.UnloadSaveLoadScene(true);
             }
         }
         else
@@ -62,7 +62,7 @@ public class SaveLoadButtonController : MonoBehaviour, IPointerEnterHandler, IPo
                 StaticDataManager.StoryPlayerDatas = playerDatas.storyPlayerDatas;
                 StaticDataManager.RearrangementPlayerDatas = playerDatas.rearrangementPlayerDatas.SelectMany(rd => rd.indices, (rd, rdIndex) => new { rdIndex, rd }).ToDictionary(rd => rd.rdIndex, rd => rd.rd);
 
-                SaveLoadManager.Instance.UnloadSaveLoadScene();
+                SaveLoadManager.Instance.UnloadSaveLoadScene(true);
             }
             else
             {
