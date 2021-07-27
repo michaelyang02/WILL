@@ -56,12 +56,11 @@ public class OutcomeAnimatedTextManager : MonoBehaviour
         if (StaticDataManager.AnimatedOutcomes.Count == 0)
         {
             IsAUTO = false;
-            SceneManager.UnloadSceneAsync("OutcomeAnimatedTextScene");
+            SceneTransition.Instance("OutcomeAnimatedTextScene").FadeOut("", false);
         }
         else
         {
-            SceneManager.UnloadSceneAsync("OutcomeAnimatedTextScene");
-            SceneManager.LoadSceneAsync("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
+            SceneTransition.Instance("OutcomeAnimatedTextScene").FadeOut("OutcomeAnimatedTextScene", true);
         }
         yield break;
     }

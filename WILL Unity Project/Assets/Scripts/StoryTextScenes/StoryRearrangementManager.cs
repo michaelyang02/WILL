@@ -410,7 +410,7 @@ public class StoryRearrangementManager : MonoBehaviour
 
         if (StaticDataManager.AnimatedOutcomes.Any())
         { // without async to avoid the slight pause before loading thus revealing outcome
-            SceneManager.LoadScene("OutcomeAnimatedTextScene", LoadSceneMode.Additive);
+            SceneTransition.Instance("StoryRearrangementScene").FadeOut("OutcomeAnimatedTextScene", true);
         }
     }
 
@@ -441,7 +441,7 @@ public class StoryRearrangementManager : MonoBehaviour
     public void BackToMainGame()
     {
         CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);
-        SceneManager.LoadSceneAsync("MainGameScene");
+        SceneTransition.Instance("StoryRearrangementScene").FadeOut("MainGameScene", false);
     }
 }
 

@@ -8,6 +8,7 @@ using System;
 public class SquareController : MonoBehaviour
 {
     private SpriteRenderer spriteRenderer;
+    private BoxCollider2D boxCollider2D;
 
     public GameObject descriptionButtonPrefab;
     private GameObject descriptionButton;
@@ -15,7 +16,8 @@ public class SquareController : MonoBehaviour
     private Vector3 YExtent = Vector3.zero;
     private static float YDirectionButtonFactor = 1.1f;
 
-    private bool isClicked = false;
+    private bool isClicked;
+    private bool isScaled;
     private GameObject canvas;
 
     public int storyIndex { get; set; }
@@ -33,6 +35,7 @@ public class SquareController : MonoBehaviour
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        boxCollider2D = GetComponent<BoxCollider2D>();
     }
 
     void Start()
@@ -44,7 +47,7 @@ public class SquareController : MonoBehaviour
 
         spriteRenderer.sprite = MainGameManager.Instance.squareDeselectedSprite;
         spriteRenderer.size = MainGameManager.Instance.gridSize * Vector2.one;
-        GetComponent<BoxCollider2D>().size = MainGameManager.Instance.gridSize * Vector2.one;
+        boxCollider2D.size = MainGameManager.Instance.gridSize * Vector2.one;
 
         YExtent.y = spriteRenderer.bounds.extents.y;
     }
@@ -62,6 +65,38 @@ public class SquareController : MonoBehaviour
     {
         // remove the event listener
         cameraManager.onZoomChange -= OnZoomChange;
+    }
+
+    void OnMouseEnter()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            if (!isScaled)
+            {
+                LeanTween.value(gameObject, MainGameManager.Instance.gridSize, MainGameManager.Instance.gridSize * 1.1f, 0.25f).setEaseOutBack().setOnUpdate((float v) =>
+                {
+                    spriteRenderer.size = v * Vector2.one;
+                    boxCollider2D.size = v * Vector2.one;
+                });
+                isScaled = true;
+            }
+        }
+    }
+
+    void OnMouseExit()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            if (isScaled)
+            {
+                LeanTween.value(gameObject, spriteRenderer.size.x, MainGameManager.Instance.gridSize, 0.1f).setEaseLinear().setOnUpdate((float v) =>
+                {
+                    spriteRenderer.size = v * Vector2.one;
+                    boxCollider2D.size = v * Vector2.one;
+                });
+                isScaled = false;
+            }
+        }
     }
 
     void OnMouseDown()
@@ -99,7 +134,7 @@ public class SquareController : MonoBehaviour
     public void GreyOut(bool state)
     {
         Color color = spriteRenderer.color;
-        color.a = state ? 0.5f: 1f;
+        color.a = state ? 0.5f : 1f;
         spriteRenderer.color = color;
     }
 

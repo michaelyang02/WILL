@@ -59,7 +59,7 @@ public class StoryTextManager : MonoBehaviour
 
     public void StartRerrangement()
     {
-        SceneManager.LoadSceneAsync("StoryRearrangementScene");
+        SceneTransition.Instance("StoryTextScene").FadeOut("StoryRearrangementScene", false);
     }
 
     public void GoToNextLetter()
@@ -69,22 +69,22 @@ public class StoryTextManager : MonoBehaviour
 
         if (StaticDataManager.StoryPlayerDatas[StaticDataManager.SelectedStoryIndices[nextIndex]].isRead == true)
         {
-            SceneManager.LoadSceneAsync("StoryTextScene");
+            SceneTransition.Instance("StoryTextScene").FadeOut("StoryTextScene", false);
         }
         else
         {
-            SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+            SceneTransition.Instance("StoryTextScene").FadeOut("StoryAnimatedTextScene", false);
         }
     }
 
     public void ReplayStory()
     {
-        SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+        SceneTransition.Instance("StoryTextScene").FadeOut("StoryAnimatedTextScene", false);
     }
 
     public void BackToMainGame()
     {
         CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);
-        SceneManager.LoadSceneAsync("MainGameScene");
+        SceneTransition.Instance("StoryTextScene").FadeOut("MainGameScene", false);
     }
 }

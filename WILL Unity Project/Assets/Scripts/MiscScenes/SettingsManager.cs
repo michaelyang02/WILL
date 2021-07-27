@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class SettingsManager : MonoBehaviour
 {
-    
+
     public AudioMixer audioMixer;
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
@@ -21,7 +21,7 @@ public class SettingsManager : MonoBehaviour
     void Start()
     {
         resolutionDropdown.ClearOptions();
-        
+
         resolutions = Screen.resolutions;
         List<string> options = new List<string>();
 
@@ -88,12 +88,11 @@ public class SettingsManager : MonoBehaviour
 
     public void UnloadSettings()
     {
-        SceneManager.UnloadSceneAsync("SettingsScene");
+        SceneTransition.Instance("SettingsScene").FadeOut("", false);
     }
 
     public void SetWritingSpeed(float writingSpeed)
     {
         StoryAnimatedTextManager.WritingTime = 1f / writingSpeed;
-        Debug.Log(StoryAnimatedTextManager.WritingTime);
     }
 }

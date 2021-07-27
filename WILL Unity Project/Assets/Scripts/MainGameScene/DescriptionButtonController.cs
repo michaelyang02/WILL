@@ -84,11 +84,11 @@ public class DescriptionButtonController : MonoBehaviour
 
             if (StaticDataManager.StoryPlayerDatas[storyIndex].isRead)
             {
-                SceneManager.LoadSceneAsync("StoryTextScene");
+                SceneTransition.Instance("MainGameScene").FadeOut("StoryTextScene", false);
             }
             else
             {
-                SceneManager.LoadSceneAsync("StoryAnimatedTextScene");
+                SceneTransition.Instance("MainGameScene").FadeOut("StoryAnimatedTextScene", false);
             }
         }
     }

@@ -7,8 +7,8 @@ public class PauseScreenManager : MonoBehaviour
 {
 
     public static bool GameIsPaused = false;
-    
-    public GameObject fullScreenPanel; 
+
+    public GameObject fullScreenPanel;
 
     void Update()
     {
@@ -17,7 +17,8 @@ public class PauseScreenManager : MonoBehaviour
             if (GameIsPaused)
             {
                 Resume();
-            } else
+            }
+            else
             {
                 Pause();
             }
@@ -40,12 +41,13 @@ public class PauseScreenManager : MonoBehaviour
 
     public void OpenSettings()
     {
-        SceneManager.LoadSceneAsync("SettingsScene", LoadSceneMode.Additive);
+        SceneTransition.Instance("MainGameScene").FadeOut("SettingsScene", true);
+        Resume();
     }
 
     public void ReturnToTitleScreen()
     {
-        SceneManager.LoadSceneAsync("MenuScene");
+        SceneTransition.Instance("MainGameScene").FadeOut("MenuScene", false);
         Resume();
         // TODO: Add confirmation window
     }

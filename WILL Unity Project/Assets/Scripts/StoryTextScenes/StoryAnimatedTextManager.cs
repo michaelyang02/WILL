@@ -66,7 +66,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
         }
         rearrangementText.RemoveAll(s => s == "");
 
-        Dictionary<RearrangementPlayerData.TextboxIndices, List<string>> textboxStrings = new Dictionary<RearrangementPlayerData.TextboxIndices, List<string>>(); 
+        Dictionary<RearrangementPlayerData.TextboxIndices, List<string>> textboxStrings = new Dictionary<RearrangementPlayerData.TextboxIndices, List<string>>();
 
         foreach (int index in StaticDataManager.RearrangementDatas[storyData.index].indices)
         {
@@ -79,12 +79,12 @@ public class StoryAnimatedTextManager : MonoBehaviour
             {
                 if (i > 0 && (orderedLineTypes[i].Value & StoryData.LineFlags.Draggable) == 0 && orderedLineTypes[i - 1].Value == orderedLineTypes[i].Value)
                 {
-                    textboxStrings[new RearrangementPlayerData.TextboxIndices() {storyIndex = index, textboxIndex = textboxIndex}].Add(initialText[initialText.Count + orderedLineTypes[i].Key]);
+                    textboxStrings[new RearrangementPlayerData.TextboxIndices() { storyIndex = index, textboxIndex = textboxIndex }].Add(initialText[initialText.Count + orderedLineTypes[i].Key]);
                 }
                 else
                 {
                     textboxIndex++;
-                    textboxStrings.Add(new RearrangementPlayerData.TextboxIndices() {storyIndex = index, textboxIndex = textboxIndex}, new List<string>() {initialText[initialText.Count + orderedLineTypes[i].Key]});
+                    textboxStrings.Add(new RearrangementPlayerData.TextboxIndices() { storyIndex = index, textboxIndex = textboxIndex }, new List<string>() { initialText[initialText.Count + orderedLineTypes[i].Key] });
                 }
             }
         }
@@ -107,7 +107,7 @@ public class StoryAnimatedTextManager : MonoBehaviour
         }
 
         yield return StartCoroutine(WaitProceeding(20f, false));
-        SceneManager.LoadSceneAsync("StoryTextScene");
+        SceneTransition.Instance("StoryAnimatedTextScene").FadeOut("StoryTextScene", false);
         yield break;
     }
 
@@ -219,12 +219,12 @@ public class StoryAnimatedTextManager : MonoBehaviour
     {
         if (StaticDataManager.StoryPlayerDatas[storyData.index].isRead)
         {
-            SceneManager.LoadSceneAsync("StoryTextScene");
+            SceneTransition.Instance("StoryAnimatedTextScene").FadeOut("StoryTextScene", false);
         }
         else
         {
             CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[storyData.index]);
-            SceneManager.LoadSceneAsync("MainGameScene");
+            SceneTransition.Instance("StoryAnimatedTextScene").FadeOut("MainGameScene", false);
         }
     }
 }
