@@ -533,6 +533,7 @@ GameObject:
   - component: {fileID: 63416741747673747}
   - component: {fileID: 5110390711693161831}
   - component: {fileID: 7659847027287679607}
+  - component: {fileID: 2730926473302724420}
   m_Layer: 5
   m_Name: Rearrangement Textbox
   m_TagString: Untagged
@@ -623,3 +624,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placeholderPrefab: {fileID: 2784811678261337659, guid: e03c23d2c7f922e43aeec2461abba300, type: 3}
+--- !u!225 &2730926473302724420
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8513218086296927216}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

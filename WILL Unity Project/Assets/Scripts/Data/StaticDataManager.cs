@@ -19,9 +19,7 @@ public class StaticDataManager : MonoBehaviour
             StoryPosition = SerializationManager.LoadJSON<List<Vector2Int>>("positionData");
             
             StoryPlayerDatas = SerializationManager.LoadJSON<List<StoryPlayerData>>("storyPlayerData");
-            RearrangementPlayerDatas = SerializationManager.LoadJSON<List<RearrangementPlayerData>>("rearrangementPlayerData").SelectMany(rd => rd.indices, (rd, rdIndex) => new { rdIndex, rd }).ToDictionary(rd => rd.rdIndex, rd => rd.rd);
-            
-            
+            RearrangementPlayerDatas = SerializationManager.LoadJSON<List<RearrangementPlayerData>>("rearrangementPlayerData").SelectMany(rd => rd.indices, (rd, rdIndex) => new { rdIndex, rd }).ToDictionary(rd => rd.rdIndex, rd => rd.rd);            
 
             /*
             StoryDatas.Add(new StoryData
@@ -111,6 +109,5 @@ public class StaticDataManager : MonoBehaviour
     public static int SelectedIndex; // index of the array not of the story!
 
     public static List<Vector2Int> StoryPosition = new List<Vector2Int>();
-
     public static List<StoryData.OutcomeIndices> AnimatedOutcomes = new List<StoryData.OutcomeIndices>();
 }

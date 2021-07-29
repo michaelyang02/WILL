@@ -8,42 +8,38 @@ public class SaveLoadManager : MonoBehaviour
 {
     public static bool isSaving = true;
 
-    public SaveDatas[] saveDatas { get; set; }
-
     public static SaveLoadManager Instance;
+    public SaveDatas[] saveDatas;
 
     void Awake()
     {
         Instance = this;
+
+        // reset
+        //SerializationManager.Save("saveData", new SaveDatas[9] { new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas() });
+
         saveDatas = SerializationManager.Load<SaveDatas[]>("saveData");
     }
 
-    void Start()
-    {
-        // reset
-        //SerializationManager.Save("saveData", new SaveDatas[9] {new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas(), new SaveDatas()});
-
-    }
-
-    public void UnloadSaveLoadScene(bool isSavedLoaded)
+    public void UnloadSavedLoaded()
     {
         SceneManager.UnloadSceneAsync("SaveLoadScene");
 
-        if (isSavedLoaded)
-        { // is actual saving/loading not just cancelling
-            SerializationManager.Save("saveData", saveDatas);
-
-            if (SceneManager.GetActiveScene().name == "MainGameScene" && !isSaving)
-            {
-                MainGameManager.Instance.SquareClick(-1);
-                CameraManager.Instance.FocusCamera(Vector2.zero);
-                MainGameManager.Instance.GenerateSquares();
-                MainGameManager.Instance.GenerateEdges();
-            }
-            if (SceneManager.GetActiveScene().name == "MenuScene")
-            {
-                SceneManager.LoadSceneAsync("MainGameScene");
-            }
+        if (SceneManager.GetActiveScene().name == "MainGameScene" && !isSaving)
+        {
+            MainGameManager.Instance.SquareClick(-1);
+            CameraManager.Instance.FocusCamera(Vector2.zero);
+            MainGameManager.Instance.GenerateSquares();
+            MainGameManager.Instance.GenerateEdges();
         }
+        if (SceneManager.GetActiveScene().name == "MenuScene")
+        {
+            SceneTransition.Instance("MenuScene").FadeOut("MainGameScene", false);
+        }
+    }
+
+    public void Unload()
+    {
+        SceneManager.UnloadSceneAsync("SaveLoadScene");
     }
 }

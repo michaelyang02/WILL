@@ -9,7 +9,7 @@ public class SceneTransition : MonoBehaviour
     static Dictionary<string, SceneTransition> SceneTransitions = new Dictionary<string, SceneTransition>();
     static List<string> AdditiveSceneNames = new List<string>()
     {
-        "SettingsScene", "SaveLoadScene"
+        "SettingsScene", "SaveLoadScene", "OutcomeAnimatedTextScene", "StoryHistoryScene"
     };
 
     public static SceneTransition Instance(string sceneName)

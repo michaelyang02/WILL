@@ -82,6 +82,11 @@ public class StoryTextManager : MonoBehaviour
         SceneTransition.Instance("StoryTextScene").FadeOut("StoryAnimatedTextScene", false);
     }
 
+    public void History()
+    {
+        SceneTransition.Instance("StoryTextScene").FadeOut("StoryHistoryScene", true);
+    }
+
     public void BackToMainGame()
     {
         CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);

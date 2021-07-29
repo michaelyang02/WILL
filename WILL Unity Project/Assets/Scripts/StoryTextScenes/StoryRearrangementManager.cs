@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class StoryRearrangementManager : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class StoryRearrangementManager : MonoBehaviour
     public GameObject rearrangementPanel;
     public GameObject resetButton;
     public GameObject startButton;
+    public GameObject historyButton;
 
     public Transform tempTextboxParentTransform;
 
@@ -44,7 +46,7 @@ public class StoryRearrangementManager : MonoBehaviour
     private Dictionary<Transform, RearrangementPlayerData.TextboxIndices> textboxTextboxIndices;
     private Dictionary<int, Transform> outcomeTransforms;
 
-    private List<TextboxController> textboxControllers;
+    private bool isDetermined;
 
     void Start()
     {
@@ -345,11 +347,39 @@ public class StoryRearrangementManager : MonoBehaviour
         {
             middlePanel.transform.GetChild(i).GetComponent<Image>().color = ColorManager.GetColor(StaticDataManager.StoryDatas[StaticDataManager.SelectedStoryIndices[i]].character);
         }
+
+        AnimateTextboxes();
+    }
+
+    void AnimateTextboxes()
+    {
+        foreach (Transform transform in rearrangementPanel.transform)
+        {
+            foreach (Transform textboxTransform in transform)
+            {
+                textboxTransform.GetComponent<CanvasGroup>().alpha = 0f;
+            }
+            ChangeAlpha(transform.GetChild(0));
+        }
+    }
+
+    void ChangeAlpha(object transformObj)
+    {
+        Transform transform = (Transform)transformObj;
+        if (transform.GetSiblingIndex() == transform.parent.childCount - 1)
+        { // last one, i.e. outcome
+            LeanTween.value(0f, 1f, 0.2f).setOnUpdate(f => transform.GetComponent<CanvasGroup>().alpha = f);
+        }
+        else
+        { // recursively set the next textbox
+            LeanTween.value(0f, 1f, 0.2f).setOnUpdate(f => transform.GetComponent<CanvasGroup>().alpha = f).setOnCompleteParam(transform.parent.GetChild(transform.GetSiblingIndex() + 1)).setOnComplete(ChangeAlpha);
+        }
     }
 
     public void DetermineOutcome()
     {
         SetNotRearranging();
+        isDetermined = true;
 
         RearrangementPlayerData rearrangementPlayerData = StaticDataManager.RearrangementPlayerDatas[StaticDataManager.SelectedStoryIndices[0]];
         RearrangementData rearrangementData = StaticDataManager.RearrangementDatas[StaticDataManager.SelectedStoryIndices[0]];
@@ -394,6 +424,11 @@ public class StoryRearrangementManager : MonoBehaviour
                         StaticDataManager.StoryPlayerDatas[outcomeIndices.storyIndex].outcomeDiscovered[outcomeIndices.outcomeIndex] = true;
                     }
 
+                    if (!StaticDataManager.RearrangementPlayerDatas[outcomeIndices.storyIndex].outcomeTextboxIndices.ContainsKey(outcomeIndices))
+                    {
+                        StaticDataManager.RearrangementPlayerDatas[outcomeIndices.storyIndex].outcomeTextboxIndices.Add(outcomeIndices, rearrangementPlayerData.rearrangementTextboxIndices[outcomeIndices.storyIndex]);
+                    }
+
                     outcomeTransforms[outcomeIndices.storyIndex].GetChild(2).GetComponent<TMPro.TMP_Text>().text = string.Join("\n", StaticDataManager.StoryDatas[outcomeIndices.storyIndex].outcomes[outcomeIndices.outcomeIndex].outcomeText).Replace("-", "").Replace("\\", "");
 
                     LayoutRebuilder.ForceRebuildLayoutImmediate(outcomeTransforms[outcomeIndices.storyIndex].GetComponent<RectTransform>());
@@ -430,6 +465,8 @@ public class StoryRearrangementManager : MonoBehaviour
 
             textboxTransforms.OrderBy(kvp => kvp.Key.storyIndex).ThenBy(kvp => kvp.Key.textboxIndex).ToList().ForEach(t => t.Value.SetParent(subpanelTransforms[t.Key.storyIndex], false));
             outcomeTransforms.ToList().ForEach(o => o.Value.SetParent(subpanelTransforms[o.Key], false));
+
+            AnimateTextboxes();
         }
         else
         {
@@ -440,8 +477,27 @@ public class StoryRearrangementManager : MonoBehaviour
 
     public void BackToMainGame()
     {
+        if (isDetermined)
+        { //autosave
+            SaveDatas[] saveDatas = SerializationManager.Load<SaveDatas[]>("saveData");
+
+            saveDatas[8].isSaved = true;
+            saveDatas[8].dateTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
+            saveDatas[8].discoveredOutcomes = StaticDataManager.StoryPlayerDatas.Aggregate(0, (total, spd) => total + ((spd.isRead) ? spd.outcomeDiscovered.Count(o => o) : 0));
+            saveDatas[8].totalOutcomes = StaticDataManager.StoryPlayerDatas.Aggregate(0, (total, spd) => total + ((spd.isRead) ? spd.outcomeDiscovered.Count() : 0));
+
+            SerializationManager.Save("saveData", saveDatas);
+
+            SerializationManager.Save("save8", new PlayerDatas { storyPlayerDatas = StaticDataManager.StoryPlayerDatas, rearrangementPlayerDatas = StaticDataManager.RearrangementPlayerDatas.Values.Distinct().ToList() });
+        }
+
         CameraManager.SetFocusPosition(StaticDataManager.StoryPosition[StaticDataManager.SelectedStoryIndices[StaticDataManager.SelectedIndex]]);
         SceneTransition.Instance("StoryRearrangementScene").FadeOut("MainGameScene", false);
+    }
+
+    public void History()
+    {
+        SceneTransition.Instance("StoryRearrangementScene").FadeOut("StoryHistoryScene", true);
     }
 }
 

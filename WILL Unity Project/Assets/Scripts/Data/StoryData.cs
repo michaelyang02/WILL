@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel;
+using System.Globalization;
 using System;
 
 [System.Serializable]
@@ -48,6 +50,7 @@ public class StoryData
         Pinned = 1 << 7
     }
 
+    [TypeConverter(typeof(OutcomeIndicesConverter))]
     [System.Serializable]
     public struct OutcomeIndices : IEquatable<OutcomeIndices>
     {
@@ -126,7 +129,7 @@ public class StoryData
             initialText = textData.initialText,
             lastLineTypes = textData.lastLineTypes,
             lineEffects = textData.lineEffects,
-            outcomes = textData.outcomeTexts.Zip(indexData.requiredOutcomeIndices, (o, i) => new {o, i}).Zip(indexData.disablingOutcomeIndices, (x, d) => new Outcome {requiredOutcomes = x.i, disablingOutcomes = d, outcomeText = x.o.outcomeText, firstLineTypes = x.o.firstLineTypes, lineEffects = x.o.lineEffects}).ToList()
+            outcomes = textData.outcomeTexts.Zip(indexData.requiredOutcomeIndices, (o, i) => new { o, i }).Zip(indexData.disablingOutcomeIndices, (x, d) => new Outcome { requiredOutcomes = x.i, disablingOutcomes = d, outcomeText = x.o.outcomeText, firstLineTypes = x.o.firstLineTypes, lineEffects = x.o.lineEffects }).ToList()
         };
     }
 }
@@ -159,4 +162,36 @@ public class IndexData
     public List<StoryData.OutcomeIndices> disablingOutcomes { get; set; }
     public List<List<StoryData.OutcomeIndices>> requiredOutcomeIndices { get; set; }
     public List<List<StoryData.OutcomeIndices>> disablingOutcomeIndices { get; set; }
+}
+
+public class OutcomeIndicesConverter : TypeConverter
+{
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        if (sourceType == typeof(string))
+        {
+            return true;
+        }
+        return base.CanConvertFrom(context, sourceType);
+    }
+
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is string)
+        {
+            string[] v = ((string)value).Split('.');
+            return new StoryData.OutcomeIndices() { storyIndex = int.Parse(v[0]), outcomeIndex = int.Parse(v[1]) };
+        }
+        return base.ConvertFrom(context, culture, value);
+    }
+
+    public override object ConvertTo(ITypeDescriptorContext context,
+       CultureInfo culture, object value, Type destinationType)
+    {
+        if (destinationType == typeof(string))
+        {
+            return ((StoryData.OutcomeIndices) value).storyIndex.ToString() + '.' + ((StoryData.OutcomeIndices) value).outcomeIndex.ToString();
+        }
+        return base.ConvertTo(context, culture, value, destinationType);
+    }
 }

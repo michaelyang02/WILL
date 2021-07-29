@@ -788,8 +788,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1188495730}
         m_TargetAssemblyTypeName: SaveLoadManager, Assembly-CSharp
-        m_MethodName: UnloadSaveLoadScene
-        m_Mode: 6
+        m_MethodName: Unload
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1267,6 +1267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96ba2da5055c5654c8a88a0a5fe63d4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveDatas: []
 --- !u!1001 &1308137913
 PrefabInstance:
   m_ObjectHideFlags: 0

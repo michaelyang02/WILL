@@ -14,7 +14,7 @@ public class SquareController : MonoBehaviour
     private GameObject descriptionButton;
 
     private Vector3 YExtent = Vector3.zero;
-    private static float YDirectionButtonFactor = 1.1f;
+    private static float YDirectionButtonFactor = 1.2f;
 
     private bool isClicked;
     private bool isScaled;
@@ -73,7 +73,7 @@ public class SquareController : MonoBehaviour
         {
             if (!isScaled)
             {
-                LeanTween.value(gameObject, MainGameManager.Instance.gridSize, MainGameManager.Instance.gridSize * 1.1f, 0.25f).setEaseOutBack().setOnUpdate((float v) =>
+                LeanTween.value(gameObject, MainGameManager.Instance.gridSize, MainGameManager.Instance.gridSize * 1.05f, 0.25f).setEaseOutBack().setOnUpdate((float v) =>
                 {
                     spriteRenderer.size = v * Vector2.one;
                     boxCollider2D.size = v * Vector2.one;

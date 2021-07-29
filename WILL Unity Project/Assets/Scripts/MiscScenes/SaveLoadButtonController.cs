@@ -9,17 +9,19 @@ using System;
 public class SaveLoadButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private int sibilingIndex;
-    private SaveDatas saveDatas;
+    private CanvasGroup canvasGroup;
 
     void Start()
     {
         sibilingIndex = transform.GetSiblingIndex();
+        canvasGroup = GetComponent<CanvasGroup>();
 
-        saveDatas = SaveLoadManager.Instance.saveDatas[sibilingIndex];
-
-        transform.GetChild(2).GetComponent<TMPro.TMP_Text>().text = saveDatas.dateTime;
-        transform.GetChild(3).GetComponent<TMPro.TMP_Text>().text = saveDatas.discoveredOutcomes.ToString() + "/" + saveDatas.totalOutcomes.ToString();
+        transform.GetChild(2).GetComponent<TMPro.TMP_Text>().text = SaveLoadManager.Instance.saveDatas[sibilingIndex].dateTime;
+        transform.GetChild(3).GetComponent<TMPro.TMP_Text>().text = SaveLoadManager.Instance.saveDatas[sibilingIndex].discoveredOutcomes.ToString() + "/" + SaveLoadManager.Instance.saveDatas[sibilingIndex].totalOutcomes.ToString();
         //transform.GetChild(4).GetComponent<Image>().sprite = SaveSprite;
+
+        canvasGroup.alpha = 0f;
+        LeanTween.value(0f, 1f, 2f).setOnUpdate(f => canvasGroup.alpha = f);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -42,27 +44,27 @@ public class SaveLoadButtonController : MonoBehaviour, IPointerEnterHandler, IPo
             }
             else
             {
-                SerializationManager.Save("save" + sibilingIndex.ToString(), new PlayerDatas { storyPlayerDatas = StaticDataManager.StoryPlayerDatas, rearrangementPlayerDatas = StaticDataManager.RearrangementPlayerDatas.Values.Distinct().ToList()});
+                SerializationManager.Save("save" + sibilingIndex.ToString(), new PlayerDatas { storyPlayerDatas = StaticDataManager.StoryPlayerDatas, rearrangementPlayerDatas = StaticDataManager.RearrangementPlayerDatas.Values.Distinct().ToList() });
 
                 SaveLoadManager.Instance.saveDatas[sibilingIndex].isSaved = true;
                 SaveLoadManager.Instance.saveDatas[sibilingIndex].dateTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
                 SaveLoadManager.Instance.saveDatas[sibilingIndex].discoveredOutcomes = StaticDataManager.StoryPlayerDatas.Aggregate(0, (total, spd) => total + ((spd.isRead) ? spd.outcomeDiscovered.Count(o => o) : 0));
                 SaveLoadManager.Instance.saveDatas[sibilingIndex].totalOutcomes = StaticDataManager.StoryPlayerDatas.Aggregate(0, (total, spd) => total + ((spd.isRead) ? spd.outcomeDiscovered.Count() : 0));
 
-                saveDatas.isSaved = true;
-                
-                SaveLoadManager.Instance.UnloadSaveLoadScene(true);
+                SerializationManager.Save("saveData", SaveLoadManager.Instance.saveDatas);
+
+                SaveLoadManager.Instance.UnloadSavedLoaded();
             }
         }
         else
         {
-            if (saveDatas.isSaved)
+            if (SaveLoadManager.Instance.saveDatas[sibilingIndex].isSaved)
             {
                 PlayerDatas playerDatas = SerializationManager.Load<PlayerDatas>("save" + transform.GetSiblingIndex().ToString());
                 StaticDataManager.StoryPlayerDatas = playerDatas.storyPlayerDatas;
                 StaticDataManager.RearrangementPlayerDatas = playerDatas.rearrangementPlayerDatas.SelectMany(rd => rd.indices, (rd, rdIndex) => new { rdIndex, rd }).ToDictionary(rd => rd.rdIndex, rd => rd.rd);
 
-                SaveLoadManager.Instance.UnloadSaveLoadScene(true);
+                SaveLoadManager.Instance.UnloadSavedLoaded();
             }
             else
             {

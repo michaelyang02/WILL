@@ -3,12 +3,18 @@
     "indices": [0],
     "rearrangementTextboxIndices": {
       "0": ["0.0","0.1","0.2","0.3"]
+    },
+    "outcomeTextboxIndices": {
+      "0.0": ["0.0","0.1","0.2","0.3"]
     }
   },
   {
     "indices": [1],
     "rearrangementTextboxIndices": {
       "1": ["1.0","1.1"]
+    },
+    "outcomeTextboxIndices": {
+      "1.0": ["1.0","1.1"]
     }
   }
 ]

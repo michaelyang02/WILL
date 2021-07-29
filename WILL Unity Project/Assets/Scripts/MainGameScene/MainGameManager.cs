@@ -61,7 +61,7 @@ public class MainGameManager : MonoBehaviour
             // all edges related to this one to true
             edges.Where(e => e[index]).ToList().ForEach(e => e.SetActive(true));
 
-            squareControllers.Where(s => !companionCharacters.Contains(indexCharacters[s.storyIndex])).ToList().ForEach(s => s.GreyOut(true));
+            //squareControllers.Where(s => !companionCharacters.Contains(indexCharacters[s.storyIndex])).ToList().ForEach(s => s.GreyOut(true));
         }
         selectedSquareIndex = index;
     }

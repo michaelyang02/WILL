@@ -19,4 +19,6 @@ public class RearrangementPlayerData
     public int[] indices { get; set; }
 
     public Dictionary<int, List<TextboxIndices>> rearrangementTextboxIndices { get; set; }
+
+    public Dictionary<StoryData.OutcomeIndices, List<TextboxIndices>> outcomeTextboxIndices { get; set; }
 }
